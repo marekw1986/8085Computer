@@ -19032,7 +19032,7 @@ high speed (Philips)</description>
 <part name="C2" library="rcl" deviceset="C-EU" device="C0805" value="100n"/>
 <part name="C3" library="rcl" deviceset="C-EU" device="C0805" value="100n"/>
 <part name="GND6" library="supply1" deviceset="GND" device=""/>
-<part name="C5" library="rcl" deviceset="C-EU" device="050-024X044" value="100n"/>
+<part name="C5" library="rcl" deviceset="C-EU" device="C0603" value="100n"/>
 <part name="C6" library="rcl" deviceset="C-EU" device="C0805" value="100n"/>
 <part name="IC9" library="74xx-eu" deviceset="74*138" device="N" technology="HCT"/>
 <part name="C9" library="rcl" deviceset="C-EU" device="C1206" value="100n"/>
@@ -19082,11 +19082,11 @@ high speed (Philips)</description>
 <part name="GND19" library="supply1" deviceset="GND" device=""/>
 <part name="GND20" library="supply1" deviceset="GND" device=""/>
 <part name="R7" library="rcl" deviceset="R-EU_" device="R0603"/>
-<part name="R8" library="rcl" deviceset="R-EU_" device="0204/7"/>
-<part name="R10" library="rcl" deviceset="R-EU_" device="R0603"/>
+<part name="R8" library="rcl" deviceset="R-EU_" device="0207/10"/>
+<part name="R10" library="rcl" deviceset="R-EU_" device="0207/10"/>
 <part name="R11" library="rcl" deviceset="R-EU_" device="R0603"/>
 <part name="RN1" library="resistor-sil" deviceset="G04R" device=""/>
-<part name="R1" library="rcl" deviceset="R-EU_" device="0204/7"/>
+<part name="R1" library="rcl" deviceset="R-EU_" device="0204/5"/>
 <part name="D1" library="diode" deviceset="1N4148" device="DO35-7"/>
 <part name="R4" library="rcl" deviceset="R-EU_" device="0204/7"/>
 <part name="C4" library="rcl" deviceset="C-EU" device="C0603"/>
@@ -19667,9 +19667,9 @@ high speed (Philips)</description>
 <pinref part="IC6" gate="A" pin="D1"/>
 </segment>
 <segment>
-<pinref part="IC11" gate="A" pin="A1"/>
-<wire x1="106.68" y1="-297.18" x2="114.3" y2="-297.18" width="0.1524" layer="91"/>
-<label x="114.3" y="-297.18" size="1.4224" layer="95" xref="yes"/>
+<pinref part="IC11" gate="A" pin="A3"/>
+<wire x1="106.68" y1="-302.26" x2="111.76" y2="-302.26" width="0.1524" layer="91"/>
+<label x="111.76" y="-302.26" size="1.4224" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="D1" class="0">
@@ -19710,8 +19710,8 @@ high speed (Philips)</description>
 </segment>
 <segment>
 <pinref part="IC11" gate="A" pin="A2"/>
-<wire x1="106.68" y1="-299.72" x2="114.3" y2="-299.72" width="0.1524" layer="91"/>
-<label x="114.3" y="-299.72" size="1.4224" layer="95" xref="yes"/>
+<wire x1="106.68" y1="-299.72" x2="111.76" y2="-299.72" width="0.1524" layer="91"/>
+<label x="111.76" y="-299.72" size="1.4224" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="D2" class="0">
@@ -19751,9 +19751,9 @@ high speed (Philips)</description>
 <pinref part="IC6" gate="A" pin="D3"/>
 </segment>
 <segment>
-<pinref part="IC11" gate="A" pin="A3"/>
-<wire x1="106.68" y1="-302.26" x2="114.3" y2="-302.26" width="0.1524" layer="91"/>
-<label x="114.3" y="-302.26" size="1.4224" layer="95" xref="yes"/>
+<pinref part="IC11" gate="A" pin="A1"/>
+<wire x1="106.68" y1="-297.18" x2="111.76" y2="-297.18" width="0.1524" layer="91"/>
+<label x="111.76" y="-297.18" size="1.4224" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="D3" class="0">
@@ -20737,9 +20737,9 @@ high speed (Philips)</description>
 <label x="149.86" y="-149.86" size="1.4224" layer="95" xref="yes"/>
 </segment>
 <segment>
-<pinref part="IC3" gate="G$1" pin="I5"/>
-<wire x1="48.26" y1="-93.98" x2="43.18" y2="-93.98" width="0.1524" layer="91"/>
-<label x="43.18" y="-93.98" size="1.4224" layer="95" rot="R180" xref="yes"/>
+<pinref part="IC3" gate="G$1" pin="I6"/>
+<wire x1="48.26" y1="-96.52" x2="43.18" y2="-96.52" width="0.1524" layer="91"/>
+<label x="43.18" y="-96.52" size="1.4224" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="AEN" class="0">
@@ -21128,9 +21128,9 @@ high speed (Philips)</description>
 <label x="30.48" y="5.08" size="1.4224" layer="95" xref="yes"/>
 </segment>
 <segment>
-<pinref part="IC3" gate="G$1" pin="I2"/>
-<wire x1="48.26" y1="-86.36" x2="43.18" y2="-86.36" width="0.1524" layer="91"/>
-<label x="43.18" y="-86.36" size="1.4224" layer="95" rot="R180" xref="yes"/>
+<pinref part="IC3" gate="G$1" pin="I5"/>
+<wire x1="48.26" y1="-93.98" x2="43.18" y2="-93.98" width="0.1524" layer="91"/>
+<label x="43.18" y="-93.98" size="1.4224" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="LOCAL_PORT_CS" class="0">
@@ -21298,19 +21298,21 @@ high speed (Philips)</description>
 </net>
 <net name="CF_D2" class="0">
 <segment>
-<pinref part="IC11" gate="A" pin="B3"/>
-<wire x1="81.28" y1="-302.26" x2="76.2" y2="-302.26" width="0.1524" layer="91"/>
-</segment>
-<segment>
 <pinref part="CON1" gate="G$1" pin="D02"/>
 <wire x1="241.3" y1="-233.68" x2="246.38" y2="-233.68" width="0.1524" layer="91"/>
 <label x="246.38" y="-233.68" size="1.4224" layer="95" xref="yes"/>
+</segment>
+<segment>
+<pinref part="IC11" gate="A" pin="B1"/>
+<wire x1="81.28" y1="-297.18" x2="76.2" y2="-297.18" width="0.1524" layer="91"/>
+<label x="76.2" y="-297.18" size="1.4224" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="CF_D1" class="0">
 <segment>
 <pinref part="IC11" gate="A" pin="B2"/>
 <wire x1="81.28" y1="-299.72" x2="76.2" y2="-299.72" width="0.1524" layer="91"/>
+<label x="76.2" y="-299.72" size="1.4224" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
 <pinref part="CON1" gate="G$1" pin="D01"/>
@@ -21320,13 +21322,14 @@ high speed (Philips)</description>
 </net>
 <net name="CF_D0" class="0">
 <segment>
-<pinref part="IC11" gate="A" pin="B1"/>
-<wire x1="81.28" y1="-297.18" x2="76.2" y2="-297.18" width="0.1524" layer="91"/>
-</segment>
-<segment>
 <pinref part="CON1" gate="G$1" pin="D00"/>
 <wire x1="241.3" y1="-228.6" x2="246.38" y2="-228.6" width="0.1524" layer="91"/>
 <label x="246.38" y="-228.6" size="1.4224" layer="95" xref="yes"/>
+</segment>
+<segment>
+<pinref part="IC11" gate="A" pin="B3"/>
+<wire x1="81.28" y1="-302.26" x2="76.2" y2="-302.26" width="0.1524" layer="91"/>
+<label x="76.2" y="-302.26" size="1.4224" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="N$14" class="0">
