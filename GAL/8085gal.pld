@@ -1,0 +1,29 @@
+GAL16V8
+G0
+
+; set pinout - can be altered later if needed
+NC A4 NC RD WR IOM LOCIOCS NC NC GND
+NC O8 O7 LOCCFCS LOCPTCS MEMWR MEMRD IOWR IORD VCC
+
+; /UART = /CS * /A9 * /A8
+; /TIMER = /CS * /A9 * A8
+; /IN = /RD * /CS * A9 * /A8 
+; /SP0 = /WR * /CS * A9 * A8
+; /DCFO = DCFI
+/MEMRD = /IOM * /RD
+/MEMWR = /IOM * /WR
+/IORD = IOM * /RD
+/IOWR = IOM * /WR
+/LOCPTCS = /LOCIOCS * /A4
+/LOCCFCS = /LOCIOCS * A4
+O7 = GND
+O8 = GND
+
+DESCRIPTION
+
+; 6502 digital clock module address decoder
+; Memory Map
+; 0x6000 - UART
+; 0x6100 - TIMER
+; 0x6200 - IN PORT (status flags)
+; 0x6300 - SP0

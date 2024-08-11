@@ -19081,10 +19081,10 @@ high speed (Philips)</description>
 <part name="CON1" library="con-hirose" deviceset="CF-CARD-IDE_MODE" device=""/>
 <part name="GND19" library="supply1" deviceset="GND" device=""/>
 <part name="GND20" library="supply1" deviceset="GND" device=""/>
-<part name="R7" library="rcl" deviceset="R-EU_" device="0204/7"/>
+<part name="R7" library="rcl" deviceset="R-EU_" device="0207/10"/>
 <part name="R8" library="rcl" deviceset="R-EU_" device="0207/10"/>
 <part name="R10" library="rcl" deviceset="R-EU_" device="0207/10"/>
-<part name="R11" library="rcl" deviceset="R-EU_" device="0204/7"/>
+<part name="R11" library="rcl" deviceset="R-EU_" device="0207/10"/>
 <part name="RN1" library="resistor-sil" deviceset="G04R" device=""/>
 <part name="R1" library="rcl" deviceset="R-EU_" device="0204/5"/>
 <part name="D1" library="diode" deviceset="1N4148" device="DO35-7"/>
@@ -21176,6 +21176,7 @@ high speed (Philips)</description>
 <segment>
 <pinref part="IC3" gate="G$1" pin="O5"/>
 <wire x1="68.58" y1="-93.98" x2="76.2" y2="-93.98" width="0.1524" layer="91"/>
+<label x="76.2" y="-93.98" size="1.4224" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="N$3" class="0">
@@ -21261,6 +21262,10 @@ high speed (Philips)</description>
 <pinref part="CON1" gate="G$1" pin="/CS0"/>
 <wire x1="205.74" y1="-259.08" x2="200.66" y2="-259.08" width="0.1524" layer="91"/>
 <label x="200.66" y="-259.08" size="1.4224" layer="95" rot="R180" xref="yes"/>
+</segment>
+<segment>
+<pinref part="IC3" gate="G$1" pin="O6"/>
+<wire x1="68.58" y1="-96.52" x2="76.2" y2="-96.52" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$29" class="0">
