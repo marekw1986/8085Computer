@@ -1,6 +1,10 @@
 		INCL "definitions.asm"
 
-		ORG  0000H
+        ORG  0C000H
+        JMP  SET_PC
+SET_PC:
+		MVI  A, 80H 
+        OUT  PORT_74237
 START:  LXI  H,STACK
 		SPHL
 		JMP LOOP
