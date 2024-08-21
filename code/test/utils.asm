@@ -1,15 +1,13 @@
 ; Various utils
 
 OUT_CHAR:
-        PUSH PSW
-        PUSH B
-		PUSH D
-		PUSH H
-		CALL VDPPUTC
-		POP H
-		POP D
-		POP B
-		POP PSW
+		PUSH PSW
+OUT_CHAR_WAIT:    
+		IN   UART_8251_CTRL             ;COME HERE TO DO OUTPUT
+        ANI  TxRDY_MASK                 ;STATUS BIT
+        JZ   OUT_CHAR_WAIT              ;NOT READY, WAIT
+        POP  PSW                        ;READY, GET OLD A BACK
+        OUT  UART_8251_DATA             ;AND SEND IT OUT
 		RET
     
 DELAY:
