@@ -10,6 +10,8 @@ SET_PC:
 START:  LXI  H,STACK
 		SPHL
 		JMP INIT
+		
+		INCL "../common/utils.asm"
 
 INIT:
 	IF FULLSYS
@@ -51,6 +53,7 @@ INIT:
 ;        OUT  RTC_CTRLE_REG
 ;        MVI  A, 04H                     ;TEST = 0, 24h mode, STOP = 0, RESET = 0
 ;        OUT  RTC_CTRLF_REG
+		EI
 	ENDIF
 		
 LOOP:
@@ -63,17 +66,6 @@ LOOP:
 		MVI C, 255
 		CALL DELAY
 		JMP LOOP
-		
-DELAY:
-		MVI B, 255
-PETLA_DEL_WEWN:
-        NOP
-        NOP
-        DCR B
-        JNZ PETLA_DEL_WEWN                          
-        DCR C
-        RZ
-        JMP DELAY
         
 ;Interrupt routines
 UART_RX_ISR:
