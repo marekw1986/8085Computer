@@ -1,4 +1,6 @@
 		INCL "../common/definitions.asm"
+		
+FULLSYS EQU 1
 
         ORG  0C000H
         JMP  SET_PC
@@ -8,11 +10,11 @@ SET_PC:
 START:  LXI  H,STACK
 		SPHL
 		JMP INIT
-
-		INCL "../common/utils.asm"
-		INCL "../common/hexdump.asm"
 		
+		INCL "../common/utils.asm"
+
 INIT:
+	IF FULLSYS
         ;Initialize 8253
   		MVI  A, 36H                     ;TIMER0 - baudrate generator for 8251
   		OUT  CONTR_W_8253               ;Timer 0, write LSB then MSB, mode 3, binary 
@@ -51,11 +53,11 @@ INIT:
 ;        OUT  RTC_CTRLE_REG
 ;        MVI  A, 04H                     ;TEST = 0, 24h mode, STOP = 0, RESET = 0
 ;        OUT  RTC_CTRLF_REG
+		EI
+	ENDIF
 		
 LOOP:
-		;MVI A, 'A'
-		;CALL OUT_CHAR
-;		IN   UART_8251_CTRL
+		IN   UART_8251_CTRL 
 
 		MVI A, 84H
 		OUT PORT_74237
@@ -64,10 +66,10 @@ LOOP:
 		MVI A, 44H
 		OUT PORT_74237
 		MVI C, 255
-		CALL DELAY		
-
+		CALL DELAY
 		JMP LOOP
-		
+
+        
 ;Interrupt routines
 UART_RX_ISR:
 		PUSH PSW						;Save condition bits and accumulator
@@ -181,7 +183,7 @@ IR7_VECT
         RET
         NOP
         NOP
-		
+        
 ;       ORG  1366H
 ;		ORG  1F00H
 		ORG	 4400H
@@ -204,7 +206,7 @@ KBDOLD	DS	 1							;Keyboard old data
 KBDNEW	DS	 1							;Keyboard new data
 CURSOR  DS   2                          ;VDP cursor x position
 STKLMT: DS   1                          ;TOP LIMIT FOR STACK
-;       ORG  1400H
+        
         ORG  7FFFH
 STACK:  DS   0                          ;STACK STARTS HERE
 ;
