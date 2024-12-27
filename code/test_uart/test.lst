@@ -1,0 +1,534 @@
+                        		INCL "../common/definitions.asm"
+   0000                 PORT_74237   		EQU		00H 
+   0020                 PA_8255    			EQU     20H
+   0021                 PB_8255				EQU		21H
+   0022                 PC_8255				EQU		22H
+   0023                 CONF_8255			EQU		23H
+   0040                 UART_8251_DATA    	EQU     40H
+   0041                 UART_8251_CTRL		EQU		41H
+   00b0                 PIC_8259_LOW		EQU		0B0H
+   00b1                 PIC_8259_HIGH		EQU		0B1H
+   0060                 COUNT_REG_0_8253 	EQU 	60H
+   0061                 COUNT_REG_1_8253 	EQU 	61H
+   0062                 COUNT_REG_2_8253 	EQU 	62H
+   0063                 CONTR_W_8253 		EQU 	63H
+   00a9                 VDP_MODE            EQU     0A9H
+   00a8                 VDP_DATA            EQU     0A8H
+   00a0                 KBD_DATA            EQU     0A0H
+   00a1                 KBD_STATUS          EQU     0A1H
+   00a1                 KBD_CMD             EQU     0A1H
+   0080                 RTC_1_SEC_REG		EQU		80H
+   0081                 RTC_10_SEC_REG		EQU		81H
+   0082                 RTC_1_MIN_REG		EQU		82H
+   0083                 RTC_10_MIN_REG		EQU		83H
+   0084                 RTC_1_HOUR_REG		EQU		84H
+   0085                 RTC_10_HOUR_REG		EQU		85H
+   0086                 RTC_1_DAY_REG		EQU		86H
+   0087                 RTC_10_DAY_REG		EQU		87H
+   0088                 RTC_1_MON_REG		EQU		88H
+   0089                 RTC_10_MON_REG		EQU		89H
+   008a                 RTC_1_YEAR_REG		EQU		8AH
+   008b                 RTC_10_YEAR_REG		EQU		8BH
+   008c                 RTC_WEEK_REG		EQU		8CH
+   008d                 RTC_CTRLD_REG		EQU		8DH
+   008e                 RTC_CTRLE_REG		EQU		8EH
+   008f                 RTC_CTRLF_REG		EQU		8FH
+                        
+                        ;8253 config
+   0000                 SEL_COUNTER_0 		EQU 	00H
+   0040                 SEL_COUNTER_1 		EQU 	40H
+   0080                 SEL_COUNTER_2 		EQU 	80H
+   0000                 COUNTER_LATCHING 	EQU 	00H 
+   0020                 RL_MSB_ONLY      	EQU 	20H
+   0010                 RL_LSB_ONLY      	EQU 	10H
+   0030                 RL_LSB_THEN_MSB  	EQU 	30H
+   0000                 MODE_0 				EQU 	00H
+   0002                 MODE_1 				EQU 	02H
+   0004                 MODE_2 				EQU 	04H
+   0006                 MODE_3 				EQU 	06H
+   0008                 MODE_4 				EQU 	08H
+   000a                 MODE_5 				EQU 	0AH
+   0001                 BCD 				EQU 	01H
+   0000                 BIN 				EQU 	00H
+                        
+   0001                 TxRDY_MASK   		EQU 	01H
+   0002                 RxRDY_MASK			EQU		02H	
+                        
+                        ; CF REGS
+   0010                 CFBASE              EQU     10H
+   0010                 CFREG0              EQU     CFBASE+0	;DATA PORT
+   0011                 CFREG1              EQU     CFBASE+1	;READ: ERROR CODE, WRITE: FEATURE
+   0012                 CFREG2              EQU     CFBASE+2	;NUMBER OF SECTORS TO TRANSFER
+   0013                 CFREG3              EQU     CFBASE+3	;SECTOR ADDRESS LBA 0 [0:7]
+   0014                 CFREG4              EQU     CFBASE+4	;SECTOR ADDRESS LBA 1 [8:15]
+   0015                 CFREG5              EQU     CFBASE+5	;SECTOR ADDRESS LBA 2 [16:23]
+   0016                 CFREG6              EQU     CFBASE+6	;SECTOR ADDRESS LBA 3 [24:27 (LSB)]
+   0017                 CFREG7              EQU     CFBASE+7	;READ: STATUS, WRITE: COMMAND
+                        
+                        ; DMA 8257 configuration
+   0020                 DMA_BASE			EQU		20H
+   0020                 DMA_CH0_ADDR		EQU		DMA_BASE+0
+   0021                 DMA_CH0_TC			EQU		DMA_BASE+1
+   0022                 DMA_CH1_ADDR		EQU		DMA_BASE+2
+   0023                 DMA_CH1_TC			EQU		DMA_BASE+3
+   0024                 DMA_CH2_ADDR		EQU		DMA_BASE+4
+   0025                 DMA_CH2_TC			EQU		DMA_BASE+5
+   0026                 DMA_CH3_ADDR		EQU		DMA_BASE+6
+   0027                 DMA_CH3_TC			EQU		DMA_BASE+7
+   0028                 DMA_MODE			EQU		DMA_BASE+8
+   0028                 DMA_STATUS			EQU		DMA_BASE+8
+                        
+   0018                 SCREEN_MAX_Y		EQU		24
+   000a                 SCREEN_MAX_X		EQU		10
+                        
+   0000                 LOAD_BASE			EQU		0000H
+                        
+                        
+   c000                         ORG  0C000H
+   c000   c3 03 c0              JMP  SET_PC
+   c003                 SET_PC:
+   c003   3e 04         		MVI  A, 04H
+   c005   d3 00                 OUT  PORT_74237
+   c007   21 ff 7f      START:  LXI  H,STACK
+   c00a   f9            		SPHL
+   c00b   c3 e3 c0      		JMP INIT
+                        
+                        		INCL "../common/utils.asm"
+                        ; Various utils
+                        
+   c00e                 OUT_CHAR:
+   c00e   f5            		PUSH PSW
+   c00f                 OUT_CHAR_WAIT:    
+   c00f   db 41         		IN   UART_8251_CTRL             ;COME HERE TO DO OUTPUT
+   c011   e6 01                 ANI  TxRDY_MASK                 ;STATUS BIT
+   c013   ca 0f c0              JZ   OUT_CHAR_WAIT              ;NOT READY, WAIT
+   c016   f1                    POP  PSW                        ;READY, GET OLD A BACK
+   c017   d3 40                 OUT  UART_8251_DATA             ;AND SEND IT OUT
+   c019   c9            		RET
+                            
+   c01a                 DELAY:
+   c01a   06 ff                 MVI B, 255
+   c01c                 PETLA_DEL_WEWN:
+   c01c   00                    NOP
+   c01d   00                    NOP
+   c01e   05                    DCR B
+   c01f   c2 1c c0              JNZ PETLA_DEL_WEWN                          
+   c022   0d                    DCR C
+   c023   c8                    RZ
+   c024   c3 1a c0              JMP DELAY        
+                                
+                        
+   c027                 MEMCOPY:
+   c027   78                    MOV A, B                        ;Copy register B to register A
+   c028   b1                    ORA C                           ;Bitwise OR of register A and register C into register A
+   c029   c8                    RZ                              ;Return if the zero-flag is set high.
+   c02a                 MC_LOOP:
+   c02a   1a                    LDAX D                          ;Load A from the address pointed by DE
+   c02b   77                    MOV M, A                        ;Store A into the address pointed by HL
+   c02c   13                    INX D                           ;Increment DE
+   c02d   23                    INX H                           ;Increment HL
+   c02e   0b                    DCX B                           ;Decrement BC   (does not affect Flags)
+   c02f   78                    MOV A, B                        ;Copy B to A    (so as to compare BC with zero)
+   c030   b1                    ORA C                           ;A = A | C      (set zero)
+   c031   c2 2a c0              JNZ MC_LOOP                     ;Jump to 'loop:' if the zero-flag is not set.   
+   c034   c9                    RET                             ;Return
+                                
+   c035                 PRN_IND_DIGIT:
+   c035   c6 30         		ADI 48
+   c037   cd 0e c0      		CALL OUT_CHAR
+   c03a   3e 2e         		MVI A, 46						;46 is a dot in ASCII
+   c03c   cd 0e c0      		CALL OUT_CHAR
+   c03f   3e 20         		MVI A, 32						;32 is space in ASCII
+   c041   cd 0e c0      		CALL OUT_CHAR
+   c044   c9            		RET
+                        		
+                        ;PRINT_PART_START_ADDR:
+                        ;		PUSH D
+                        ;		CALL PRN_ZERO_EX
+                        ;		LXI D, STARTADDRSTR
+                        ;		MVI B, 12
+                        ;		CALL PRNSTR
+                        ;		POP D
+                        ;		CALL HEXDUMP32BITVAL_PLUS_SPACE
+                        ;		RET
+                        		
+                        ;PRINT_PART_SIZE:
+                        ;		PUSH D
+                        ;		CALL PRN_ZERO_EX
+                        ;		LXI D, SIZESTR
+                        ;		MVI B, 6
+                        ;		CALL PRNSTR
+                        ;		POP D
+                        ;		CALL HEXDUMP32BITVAL
+                        ;		RET
+                        
+   c045                 NEWLINE:
+   c045   3e 0d         		MVI A, 0DH
+   c047   cd 0e c0      		CALL OUT_CHAR
+                        		;MVI A, 0AH					; Comment out when LF implementation
+                        		;CALL OUT_CHAR				; in VDP will be ready
+   c04a   c9            		RET
+                        		
+   c04b                 PRN_ZERO_EX:
+   c04b   3e 30         		MVI A, 48					;48 is 0 in ASCII
+   c04d   cd 0e c0      		CALL OUT_CHAR
+   c050   3e 78         		MVI A, 120					;120 is x in ASCII
+   c052   cd 0e c0      		CALL OUT_CHAR
+   c055   c9            		RET
+                        		
+                        
+                        ;PRINTS STRING POINTED BY DE AND TERMINATED WITH CR OR NULL
+                        ;MAX NUMBER OF CHARACTERS IN B         
+   c056   78            PRNSTR:	MOV A, B
+   c057   fe 00         		CPI 00H
+   c059   c8            		RZ
+   c05a   1a            		LDAX D							;GET A CHARACTER
+   c05b   fe 0d         		CPI CR
+   c05d   c8            		RZ
+   c05e   fe 00         		CPI 00H
+   c060   c8            		RZ
+   c061   cd 0e c0      		CALL OUT_CHAR
+   c064   13            		INX D							
+   c065   05            		DCR B
+   c066   c3 56 c0      		JMP PRNSTR
+                        
+                        ;SAWPS PAIR IN STRING POINTED BY DE UNTIL B REACH 0
+                        ;B IS NUMBER OF PAIRS!!!
+   c069   78            SWPSTR: MOV A, B
+   c06a   fe 00         		CPI 00H
+   c06c   c8            		RZ
+   c06d   1a            		LDAX D
+   c06e   67            		MOV H, A
+   c06f   13            		INX D
+   c070   1a            		LDAX D
+   c071   6f            		MOV L, A
+   c072   7c            		MOV A, H
+   c073   12            		STAX D
+   c074   1b            		DCX D
+   c075   7d            		MOV A, L
+   c076   12            		STAX D
+   c077   13            		INX D
+   c078   13            		INX D
+   c079   05            		DCR B
+   c07a   c3 69 c0      		JMP SWPSTR
+                        
+                        ; Checks if 32 variable pointed by DL is zero		
+   c07d                 ISZERO32BIT:
+   c07d   1a            		LDAX D
+   c07e   fe 00         		CPI 00H
+   c080   c0            		RNZ
+   c081   13            		INX D
+   c082   1a            		LDAX D
+   c083   fe 00         		CPI 00H
+   c085   c0            		RNZ
+   c086   13            		INX D
+   c087   1a            		LDAX D
+   c088   fe 00         		CPI 00H
+   c08a   c0            		RNZ
+   c08b   13            		INX D
+   c08c   1a            		LDAX D
+   c08d   fe 00         		CPI 00H
+   c08f   c9            		RET
+                        
+                        ;THIS IS JUSY ENDLESS LOOP. Go here if something is wrong.		
+   c090                 ENDLESS_LOOP:
+   c090   00            		NOP
+   c091   c3 90 c0      		JMP ENDLESS_LOOP
+                                
+                        
+                        		INCL "../common/hexdump.asm"
+                        ;Dumps number of bytes (passed in B) in hex
+                        ;Beginning in DE
+   c094                 HEXDUMP:
+   c094   78            	MOV A, B
+   c095   fe 00         	CPI 00H
+   c097   c8            	RZ
+   c098   1a            	LDAX D				;Get byte
+   c099   cd a6 c0      	CALL HEXDUMP_A		;Print current byte as hex value
+   c09c   3e 20         	MVI A, 32			;Print space
+   c09e   cd 0e c0      	CALL OUT_CHAR
+   c0a1   13            	INX D
+   c0a2   05            	DCR B
+   c0a3   c3 94 c0      	JMP HEXDUMP
+                        
+                        ;Print the value in A in hex
+   c0a6                 HEXDUMP_A:
+   c0a6   f5            	PUSH PSW
+   c0a7   0f            	RRC
+   c0a8   0f            	RRC
+   c0a9   0f            	RRC
+   c0aa   0f            	RRC
+   c0ab   e6 0f         	ANI 00FH
+   c0ad   cd b9 c0      	CALL HEXDUMP_NIB
+   c0b0   f1            	POP PSW
+   c0b1   f5            	PUSH PSW
+   c0b2   e6 0f         	ANI 00FH
+   c0b4   cd b9 c0      	CALL HEXDUMP_NIB
+   c0b7   f1            	POP PSW
+   c0b8   c9            	RET	
+   c0b9                 HEXDUMP_NIB:
+   c0b9   c6 30         	ADI 48	;48 is 0 in ascii
+   c0bb   fe 3a         	CPI 57+1	;57 is 9 in ascii
+   c0bd   da c2 c0      	JC HEXDUMP_NUM
+   c0c0   c6 07         	ADI 65-57-1	;'A'-'9'-1
+   c0c2                 HEXDUMP_NUM:
+   c0c2   cd 0e c0      	CALL OUT_CHAR
+   c0c5   c9            	RET
+                        
+   c0c6                 HEXDUMP32BITVAL:
+   c0c6   1a            	    LDAX D
+   c0c7   cd a6 c0              CALL HEXDUMP_A
+   c0ca   1b                    DCX D
+   c0cb   1a                    LDAX D
+   c0cc   cd a6 c0              CALL HEXDUMP_A
+   c0cf   1b                    DCX D
+   c0d0   1a                    LDAX D
+   c0d1   cd a6 c0              CALL HEXDUMP_A
+   c0d4   1b                    DCX D
+   c0d5   1a                    LDAX D
+   c0d6   cd a6 c0              CALL HEXDUMP_A
+   c0d9   c9                    RET
+                        
+   c0da                 HEXDUMP32BITVAL_PLUS_SPACE:
+   c0da   cd c6 c0      		CALL HEXDUMP32BITVAL
+   c0dd   3e 20         		MVI A, 32
+   c0df   cd 0e c0      		CALL OUT_CHAR
+   c0e2   c9            		RET
+                        
+                        		
+   c0e3                 INIT:
+                                ;Initialize 8253
+   c0e3   3e 36           		MVI  A, 36H                     ;TIMER0 - baudrate generator for 8251
+   c0e5   d3 63           		OUT  CONTR_W_8253               ;Timer 0, write LSB then MSB, mode 3, binary 
+   c0e7   3e 13          	 	MVI  A, 13H                     ;LSB
+   c0e9   d3 60           		OUT  COUNT_REG_0_8253
+   c0eb   3e 00           		MVI  A, 00H                     ;MSB
+   c0ed   d3 60           		OUT  COUNT_REG_0_8253
+   c0ef   3e 70                 MVI  A, 70H                     ;TIMER1 - systick
+   c0f1   d3 63                 OUT CONTR_W_8253                ;Timer 1, write LSB then MSB, mode 0, binary
+   c0f3   3e 60          	 	MVI  A, 60H                     ;LSB, interrupt every 20ms
+   c0f5   d3 61           		OUT  COUNT_REG_1_8253
+   c0f7   3e ea           		MVI  A, 0EAH                    ;MSB, interrupt every 20ms
+   c0f9   d3 61           		OUT  COUNT_REG_1_8253        
+                                ;Initialize 8251
+   c0fb   3e 4e                 MVI	 A, 4EH
+   c0fd   d3 41                 OUT	 UART_8251_CTRL
+   c0ff   3e 27                 MVI	 A, 27H
+   c101   d3 41                 OUT	 UART_8251_CTRL
+                                ;Initialize 8259
+   c103   3e ff                 MVI  A, 0FFH					;ICW1 - LSB of IR0_VECT = 0xE0, level triggered, 4 byte intervals, one 8259, ICW4 needed
+   c105   d3 b0                 OUT  PIC_8259_LOW				;ICW1 is written to the low port of 8259
+   c107   3e ff                 MVI  A, 0FFH					;ICW2, MSB of IR0_VECT
+   c109   d3 b1                 OUT	 PIC_8259_HIGH				;ICW2 is written to the high port of 8259
+   c10b   3e 02                 MVI  A, 02H						;ICW4 - NOT special full nested mode, not buffored, master, automatic EOI, 8080 processor
+   c10d   d3 b1                 OUT  PIC_8259_HIGH				;ICW4 is written to the high port of 8259        
+   c10f   3e 9b                 MVI  A, 9BH						;OCW1 active TIMER, RTC and KBD interrupt
+   c111   d3 b1                 OUT  PIC_8259_HIGH				;OCW1 is written to the high port of 8259
+   c113   3e 80                 MVI  A, 80H						;OCW2 - Rotation of priorities, no explicit EOI
+   c115   d3 b0                 OUT  PIC_8259_LOW				;OCW2 is written to the low port of 8259
+                        ;        MVI  A, 4BH				    ;OCW3 - ESMM SMM RESET SPECIAL MASK, NO POLL COMMAND, RR_RIS_READ_IS_REG
+                        ;        OUT  PIC_8259_LOW				;OCW3 is written to the low port of 8259
+                                ;Initialize M6442B RTC
+                        ;        MVI  A, 04H                     ;30 AJD = 0, IRQ FLAG = 1 (required), BUSY = 0(?), HOLD = 0
+                        ;        OUT  RTC_CTRLD_REG
+                        ;        MVI  A, 06H                     ;Innterrupt mode, STD.P enabled, 1 s.
+                        ;        OUT  RTC_CTRLE_REG
+                        ;        MVI  A, 04H                     ;TEST = 0, 24h mode, STOP = 0, RESET = 0
+                        ;        OUT  RTC_CTRLF_REG
+                        		
+   c117                 LOOP:
+                        		;MVI A, 'A'
+                        		;CALL OUT_CHAR
+                        ;		IN   UART_8251_CTRL
+                        
+   c117   3e 84         		MVI A, 84H
+   c119   d3 00         		OUT PORT_74237
+   c11b   0e ff         		MVI C, 255
+   c11d   cd 1a c0      		CALL DELAY
+   c120   3e 44         		MVI A, 44H
+   c122   d3 00         		OUT PORT_74237
+   c124   0e ff         		MVI C, 255
+   c126   cd 1a c0      		CALL DELAY		
+                        
+   c129   c3 17 c1      		JMP LOOP
+                        		
+                        ;Interrupt routines
+   c12c                 UART_RX_ISR:
+   c12c   f5            		PUSH PSW						;Save condition bits and accumulator
+   c12d   e5                    PUSH H
+   c12e   d5                    PUSH D
+   c12f   d1                    POP D
+   c130   e1                    POP H        
+   c131   f1            		POP PSW							;Restore machine status
+   c132   fb                    EI                              ;Re-enable interrupts
+   c133   c9            		RET								;Return to interrupted program
+                        
+   c134                 UART_TX_ISR:
+   c134   f5            		PUSH PSW						;Save condition bits and accumulator
+   c135   e5                    PUSH H
+   c136   d5                    PUSH D
+   c137   d1                    POP D
+   c138   e1                    POP H        
+   c139   f1            		POP PSW							;Restore machine status
+   c13a   fb                    EI                              ;Re-enable interrupts
+   c13b   c9            		RET								;Return to interrupted program
+                        
+   c13c                 KBD_ISR:
+   c13c   f5            		PUSH PSW						;Save condition bits and accumulator
+   c13d   e5                    PUSH H
+   c13e   d5                    PUSH D
+                                ;IN KBD_STATUS                  ;NO NEED TO TEST, INTERRUPT MODE!
+                                ;ANI 01H                         ;Check if output buffer full
+                                ;JZ KBD_ISR_RET                  ;Output buffer empty, end ISR
+   c13f   db a0                 IN KBD_DATA                     ;Get keyboard data
+   c141   32 81 46              STA KBDDATA                     ;Save received code
+   c144                 KBD_ISR_RET:        
+   c144   d1                    POP D
+   c145   e1                    POP H        
+   c146   f1            		POP PSW							;Restore machine status
+   c147   fb                    EI                              ;Re-enable interrupts
+   c148   c9            		RET								;Return to interrupted program
+                        
+   c149                 TIMER_ISR:
+   c149   f5            		PUSH PSW						;Save condition bits and accumulator
+   c14a   e5                    PUSH H
+   c14b   d5                    PUSH D
+   c14c   2a 7d 46              LHLD SYSTICK                    ;Load SYSTICK variable to HL
+   c14f   23                    INX H                           ;Increment HL
+   c150   22 7d 46              SHLD SYSTICK                    ;Save HL in SYSTICK variable
+   c153   3e 00          	 	MVI  A, 00H                     ;Reload. LSB, interrupt every 20ms
+   c155   d3 60           		OUT  COUNT_REG_0_8253
+   c157   3e a0           		MVI  A, 0A0H                    ;Reload. MSB, interrupt every 20ms (0xF0 for 30 ms)
+   c159   d3 60           		OUT  COUNT_REG_0_8253                
+   c15b   d1                    POP D
+   c15c   e1                    POP H        
+   c15d   f1            		POP PSW							;Restore machine status
+   c15e   fb                    EI                              ;Re-enable interrupts
+   c15f   c9            		RET								;Return to interrupted program
+                        		
+   c160                 RTC_ISR:
+   c160   f5            		PUSH PSW						;Save condition bits and accumulator
+   c161   e5                    PUSH H
+   c162   d5                    PUSH D
+   c163   3e 00                 MVI A, 00H                      ;Clear the RTC interrupt flag to change state of the line
+   c165   d3 8d                 OUT RTC_CTRLD_REG
+   c167   2a 7f 46              LHLD RTCTICK                    ;Load RTCTICK variable to HL
+   c16a   23                    INX H                           ;Increment HL
+   c16b   22 7f 46              SHLD RTCTICK                    ;Save HL in RTCTICK variable        
+   c16e   d1                    POP D
+   c16f   e1                    POP H        
+   c170   f1            		POP PSW							;Restore machine status
+   c171   fb                    EI                              ;Re-enable interrupts
+   c172   c9            		RET								;Return to interrupted program
+                        
+                        ;Interrupt vectors
+   c173                 IR0_VECT:
+   ffe0                 		ORG  0FFE0H
+   ffe0   c3 3c c1      		JMP KBD_ISR
+   ffe3   00                    NOP
+                                ;EI
+                                ;RET
+                                ;NOP
+                                ;NOP        
+   ffe4                 IR1_VECT:
+                        		;JMP UART_TX_ISR
+                                ;NOP
+   ffe4   fb                    EI
+   ffe5   c9                    RET
+   ffe6   00                    NOP
+   ffe7   00                    NOP
+   ffe8                 IR2_VECT:
+                        		;JMP UART_RX_ISR
+                                ;NOP
+   ffe8   fb                    EI
+   ffe9   c9                    RET
+   ffea   00                    NOP
+   ffeb   00                    NOP
+   ffec                 IR3_VECT:
+   ffec   c3 60 c1      		JMP RTC_ISR
+   ffef   00                    NOP
+   fff0                 IR4_VECT:
+   fff0   c3 49 c1      		JMP TIMER_ISR
+   fff3   00                    NOP
+   fff4                 IR5_VECT:
+   fff4   fb                    EI	
+   fff5   c9                    RET
+   fff6   00                    NOP
+   fff7   00                    NOP
+   fff8                 IR6_VECT:
+   fff8   fb                    EI	
+   fff9   c9                    RET
+   fffa   00                    NOP
+   fffb   00                    NOP
+   fffc                 IR7_VECT
+   fffc   fb                    EI	
+   fffd   c9                    RET
+   fffe   00                    NOP
+   ffff   00                    NOP
+                        		
+                        ;       ORG  1366H
+                        ;		ORG  1F00H
+   4400                 		ORG	 4400H
+   4400                 TXTEND: DS   0                          ;TEXT SAVE AREA ENDS
+   4400                 VARBGN: DS   55                         ;VARIABLE @(0)
+   4437                 BUFFER: DS   64                         ;INPUT BUFFER
+   4477                 BUFEND: DS   1
+   4478                 CFLBA3	DS	 1
+   4479                 CFLBA2	DS	 1
+   447a                 CFLBA1	DS	 1
+   447b                 CFLBA0	DS	 1                          ;BUFFER ENDS
+   447c                 BLKDAT: DS   512                        ;BUFFER FOR SECTOR TRANSFER
+   467c                 BLKENDL DS   1                          ;BUFFER ENDS
+   467d                 SYSTICK DS   2                          ;Systick timer
+   467f                 RTCTICK DS   2							;RTC tick timer/uptime
+   4681                 KBDDATA DS   1                          ;Keyboard last received code
+   4682                 KBDKRFL DS	 1							;Keyboard key release flag
+   4683                 KBDSFFL DS	 1							;Keyboard Shift flag
+   4684                 KBDOLD	DS	 1							;Keyboard old data
+   4685                 KBDNEW	DS	 1							;Keyboard new data
+   4686                 CURSOR  DS   2                          ;VDP cursor x position
+   4688                 STKLMT: DS   1                          ;TOP LIMIT FOR STACK
+                        ;       ORG  1400H
+   7fff                         ORG  7FFFH
+   7fff                 STACK:  DS   0                          ;STACK STARTS HERE
+                        ;
+                        
+   000d                 CR      EQU  0DH
+   000a                 LF      EQU  0AH
+                        
+   7fff                 		END
+0001  BCD           0000  BIN           447c  BLKDAT        467c  BLKENDL   
+4477  BUFEND        4437  BUFFER        0010  CFBASE        447b  CFLBA0    
+447a  CFLBA1        4479  CFLBA2        4478  CFLBA3        0010  CFREG0    
+0011  CFREG1        0012  CFREG2        0013  CFREG3        0014  CFREG4    
+0015  CFREG5        0016  CFREG6        0017  CFREG7        0023  CONF_8255 
+0063  CONTR_W_8253    0000  COUNTER_LATCHING    0060  COUNT_REG_0_8253    0061  COUNT_REG_1_8253
+0062  COUNT_REG_2_8253    000d  CR            4686  CURSOR        c01a  DELAY     
+0020  DMA_BASE      0020  DMA_CH0_ADDR    0021  DMA_CH0_TC    0022  DMA_CH1_ADDR
+0023  DMA_CH1_TC    0024  DMA_CH2_ADDR    0025  DMA_CH2_TC    0026  DMA_CH3_ADDR
+0027  DMA_CH3_TC    0028  DMA_MODE      0028  DMA_STATUS    c090  ENDLESS_LOOP
+c094  HEXDUMP       c0c6  HEXDUMP32BITVAL    c0da  HEXDUMP32BITVAL_PLUS_SPACE    c0a6  HEXDUMP_A 
+c0b9  HEXDUMP_NIB    c0c2  HEXDUMP_NUM    c0e3  INIT          c173  IR0_VECT  
+ffe4  IR1_VECT      ffe8  IR2_VECT      ffec  IR3_VECT      fff0  IR4_VECT  
+fff4  IR5_VECT      fff8  IR6_VECT      fffc  IR7_VECT      c07d  ISZERO32BIT
+4681  KBDDATA       4682  KBDKRFL       4685  KBDNEW        4684  KBDOLD    
+4683  KBDSFFL       00a1  KBD_CMD       00a0  KBD_DATA      c13c  KBD_ISR   
+c144  KBD_ISR_RET    00a1  KBD_STATUS    000a  LF            0000  LOAD_BASE 
+c117  LOOP          c02a  MC_LOOP       c027  MEMCOPY       0000  MODE_0    
+0002  MODE_1        0004  MODE_2        0006  MODE_3        0008  MODE_4    
+000a  MODE_5        c045  NEWLINE       c00e  OUT_CHAR      c00f  OUT_CHAR_WAIT
+0020  PA_8255       0021  PB_8255       0022  PC_8255       c01c  PETLA_DEL_WEWN
+00b1  PIC_8259_HIGH    00b0  PIC_8259_LOW    0000  PORT_74237    c056  PRNSTR    
+c035  PRN_IND_DIGIT    c04b  PRN_ZERO_EX    0010  RL_LSB_ONLY    0030  RL_LSB_THEN_MSB
+0020  RL_MSB_ONLY    467f  RTCTICK       0087  RTC_10_DAY_REG    0085  RTC_10_HOUR_REG
+0083  RTC_10_MIN_REG    0089  RTC_10_MON_REG    0081  RTC_10_SEC_REG    008b  RTC_10_YEAR_REG
+0086  RTC_1_DAY_REG    0084  RTC_1_HOUR_REG    0082  RTC_1_MIN_REG    0088  RTC_1_MON_REG
+0080  RTC_1_SEC_REG    008a  RTC_1_YEAR_REG    008d  RTC_CTRLD_REG    008e  RTC_CTRLE_REG
+008f  RTC_CTRLF_REG    c160  RTC_ISR       008c  RTC_WEEK_REG    0002  RxRDY_MASK
+000a  SCREEN_MAX_X    0018  SCREEN_MAX_Y    0000  SEL_COUNTER_0    0040  SEL_COUNTER_1
+0080  SEL_COUNTER_2    c003  SET_PC        7fff  STACK         c007  START     
+4688  STKLMT        c069  SWPSTR        467d  SYSTICK       c149  TIMER_ISR 
+4400  TXTEND        0001  TxRDY_MASK    0041  UART_8251_CTRL    0040  UART_8251_DATA
+c12c  UART_RX_ISR    c134  UART_TX_ISR    4400  VARBGN        00a8  VDP_DATA  
+00a9  VDP_MODE      
+

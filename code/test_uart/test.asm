@@ -1,6 +1,4 @@
 		INCL "../common/definitions.asm"
-		
-FULLSYS EQU 1
 
         ORG  0C000H
         JMP  SET_PC
@@ -11,8 +9,10 @@ START:  LXI  H,STACK
 		SPHL
 		JMP INIT
 
+		INCL "../common/utils.asm"
+		INCL "../common/hexdump.asm"
+		
 INIT:
-	IF FULLSYS
         ;Initialize 8253
   		MVI  A, 36H                     ;TIMER0 - baudrate generator for 8251
   		OUT  CONTR_W_8253               ;Timer 0, write LSB then MSB, mode 3, binary 
@@ -51,9 +51,12 @@ INIT:
 ;        OUT  RTC_CTRLE_REG
 ;        MVI  A, 04H                     ;TEST = 0, 24h mode, STOP = 0, RESET = 0
 ;        OUT  RTC_CTRLF_REG
-	ENDIF
 		
 LOOP:
+		;MVI A, 'A'
+		;CALL OUT_CHAR
+;		IN   UART_8251_CTRL
+
 		MVI A, 84H
 		OUT PORT_74237
 		MVI C, 255
@@ -61,76 +64,147 @@ LOOP:
 		MVI A, 44H
 		OUT PORT_74237
 		MVI C, 255
-		CALL DELAY
+		CALL DELAY		
+
 		JMP LOOP
 		
-DELAY:
-		MVI B, 255
-PETLA_DEL_WEWN:
-        NOP
-        NOP
-        DCR B
-        JNZ PETLA_DEL_WEWN                          
-        DCR C
-        RZ
-        JMP DELAY
-        
 ;Interrupt routines
 UART_RX_ISR:
+		PUSH PSW						;Save condition bits and accumulator
+        PUSH H
+        PUSH D
+        POP D
+        POP H        
+		POP PSW							;Restore machine status
         EI                              ;Re-enable interrupts
 		RET								;Return to interrupted program
 
 UART_TX_ISR:
+		PUSH PSW						;Save condition bits and accumulator
+        PUSH H
+        PUSH D
+        POP D
+        POP H        
+		POP PSW							;Restore machine status
         EI                              ;Re-enable interrupts
 		RET								;Return to interrupted program
 
 KBD_ISR:
+		PUSH PSW						;Save condition bits and accumulator
+        PUSH H
+        PUSH D
+        ;IN KBD_STATUS                  ;NO NEED TO TEST, INTERRUPT MODE!
+        ;ANI 01H                         ;Check if output buffer full
+        ;JZ KBD_ISR_RET                  ;Output buffer empty, end ISR
+        IN KBD_DATA                     ;Get keyboard data
+        STA KBDDATA                     ;Save received code
+KBD_ISR_RET:        
+        POP D
+        POP H        
+		POP PSW							;Restore machine status
         EI                              ;Re-enable interrupts
 		RET								;Return to interrupted program
 
 TIMER_ISR:
+		PUSH PSW						;Save condition bits and accumulator
+        PUSH H
+        PUSH D
+        LHLD SYSTICK                    ;Load SYSTICK variable to HL
+        INX H                           ;Increment HL
+        SHLD SYSTICK                    ;Save HL in SYSTICK variable
+ 	 	MVI  A, 00H                     ;Reload. LSB, interrupt every 20ms
+  		OUT  COUNT_REG_0_8253
+  		MVI  A, 0A0H                    ;Reload. MSB, interrupt every 20ms (0xF0 for 30 ms)
+  		OUT  COUNT_REG_0_8253                
+        POP D
+        POP H        
+		POP PSW							;Restore machine status
         EI                              ;Re-enable interrupts
 		RET								;Return to interrupted program
 		
-RTC_ISR: 
+RTC_ISR:
+		PUSH PSW						;Save condition bits and accumulator
+        PUSH H
+        PUSH D
+        MVI A, 00H                      ;Clear the RTC interrupt flag to change state of the line
+        OUT RTC_CTRLD_REG
+        LHLD RTCTICK                    ;Load RTCTICK variable to HL
+        INX H                           ;Increment HL
+        SHLD RTCTICK                    ;Save HL in RTCTICK variable        
+        POP D
+        POP H        
+		POP PSW							;Restore machine status
         EI                              ;Re-enable interrupts
 		RET								;Return to interrupted program
-		
-VDP_ISR:
-        EI                              ;Re-enable interrupts
-		RET								;Return to interrupted program		
 
 ;Interrupt vectors
 IR0_VECT:
 		ORG  0FFE0H
+		JMP KBD_ISR
+        NOP
+        ;EI
+        ;RET
+        ;NOP
+        ;NOP        
+IR1_VECT:
+		;JMP UART_TX_ISR
+        ;NOP
+        EI
+        RET
+        NOP
+        NOP
+IR2_VECT:
+		;JMP UART_RX_ISR
+        ;NOP
+        EI
+        RET
+        NOP
+        NOP
+IR3_VECT:
+		JMP RTC_ISR
+        NOP
+IR4_VECT:
+		JMP TIMER_ISR
+        NOP
+IR5_VECT:
         EI	
         RET
         NOP
         NOP
-IR1_VECT:
-        EI
-		RET
-        NOP
-        NOP
-IR2_VECT:
-		JMP TIMER_ISR
-        NOP
-IR3_VECT:
-		JMP UART_TX_ISR
-        NOP
-IR4_VECT:
-		JMP UART_RX_ISR
-        NOP
-IR5_VECT:
-		JMP KBD_ISR
-        NOP
 IR6_VECT:
-		JMP RTC_ISR
+        EI	
+        RET
+        NOP
         NOP
 IR7_VECT
-		JMP VDP_ISR
+        EI	
+        RET
         NOP
-        
+        NOP
+		
+;       ORG  1366H
+;		ORG  1F00H
+		ORG	 4400H
+TXTEND: DS   0                          ;TEXT SAVE AREA ENDS
+VARBGN: DS   55                         ;VARIABLE @(0)
+BUFFER: DS   64                         ;INPUT BUFFER
+BUFEND: DS   1
+CFLBA3	DS	 1
+CFLBA2	DS	 1
+CFLBA1	DS	 1
+CFLBA0	DS	 1                          ;BUFFER ENDS
+BLKDAT: DS   512                        ;BUFFER FOR SECTOR TRANSFER
+BLKENDL DS   1                          ;BUFFER ENDS
+SYSTICK DS   2                          ;Systick timer
+RTCTICK DS   2							;RTC tick timer/uptime
+KBDDATA DS   1                          ;Keyboard last received code
+KBDKRFL DS	 1							;Keyboard key release flag
+KBDSFFL DS	 1							;Keyboard Shift flag
+KBDOLD	DS	 1							;Keyboard old data
+KBDNEW	DS	 1							;Keyboard new data
+CURSOR  DS   2                          ;VDP cursor x position
+STKLMT: DS   1                          ;TOP LIMIT FOR STACK
+;       ORG  1400H
         ORG  7FFFH
 STACK:  DS   0                          ;STACK STARTS HERE
 ;
