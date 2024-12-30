@@ -1,11 +1,11 @@
 # Adjust the run address to match the .org in the source code
-all: test.bin test.hex
+all: test_uart.bin test_uart.hex
 
-test.bin: test.hex
-	objcopy --input-target=ihex --output-target=binary test.hex test.bin
+test_uart.bin: test_uart.hex
+	objcopy --input-target=ihex --output-target=binary test_uart.hex test_uart.bin
 
-test.hex: test.asm
-	a85 test.asm -l test.lst -o test.hex 
+test_uart.hex: test_uart.asm
+	a85 test_uart.asm -l test_uart.lst -o test_uart.hex 
 
 clean:
 	$(RM) *.lst *.hex *.bin
