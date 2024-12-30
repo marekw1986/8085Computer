@@ -1575,26 +1575,119 @@ INIT:   STA  OCSW
         LXI  D, INPIO_ROM               ;SOURCE
         LXI  H, INPIO                   ;DESTINATION
         CALL MEMCOPY
-		
-        ;CALL CFINIT
-        ;CALL CFRSECT
-        ;CALL CFINFO
         
-
-;       Initialize keyboard
-;        LXI D, KBDMSG                       ;Print KBD Init message
-;        CALL PRTSTG
-;        CALL KBDINIT                        ;Call init routine
-;        MOV L, B                            ;Check and print result code
-;        MVI H, 00H
-;        MVI C, 02H
-;        CALL PRTNUM
-;        CALL CRLF
-;        MVI A, 0D1H
-;        OUT KBD_CMD
-;        CALL KBDWAITINBUF
-;        MVI A, 0FFH
-;        OUT KBD_DATA
+		CALL IPUTS
+		DB 'CF CARD: '
+		DB 00H
+		CALL CFINIT
+		CPI 00H								; Check if CF_WAIT during initialization timeouted
+		JZ GET_CFINFO
+		CALL IPUTS
+		DB 'missing'
+		DB 00H
+		CALL NEWLINE
+		JMP BOOT_TINY_BASIC
+GET_CFINFO:
+        CALL CFINFO
+        CALL CFGETMBR
+        ; Check if MBR is proper
+        LXI D, LOAD_BASE+510
+        LDAX D
+        CPI 55H
+        JNZ LOG_FAULTY_MBR
+        INX D
+        LDAX D
+        CPI 0AAH
+        JNZ LOG_FAULTY_MBR
+        JMP LOG_PARTITION_TABLE
+LOG_FAULTY_MBR:
+		CALL IPUTS
+		DB 'ERROR: faulty MBR'
+		DB 00H
+		CALL NEWLINE
+        JMP BOOT_TINY_BASIC
+LOG_PARTITION_TABLE:
+		CALL IPUTS
+		DB 'Partition table'
+		DB 00H
+        CALL NEWLINE
+        CALL PRN_PARTITION_TABLE
+        CALL NEWLINE
+        ; Check if partition 1 is present
+        LXI D, LOAD_BASE+446+8		; Address of first partition
+        CALL ISZERO32BIT
+        JNZ CHECK_PARTITION1_SIZE
+        CALL IPUTS
+		DB 'ERROR: partition 1 missing'
+		DB 00H
+        CALL NEWLINE
+        JMP BOOT_TINY_BASIC
+CHECK_PARTITION1_SIZE:
+		; Check if partition 1 is larger than 16kB (32 sectors)
+		LXI D, LOAD_BASE+446+12		; First partition size
+		LDAX D
+		CPI 32						; Check least significant byte
+		JZ PRINT_BOOT_OPTIONS		; It is equal. Good enough.
+		JNC PRINT_BOOT_OPTIONS		; It is bigger
+		INX D
+		LDAX D
+		CPI 00H
+		JNZ PRINT_BOOT_OPTIONS
+		INX D
+		LDAX D
+		CPI 00H
+		JNZ PRINT_BOOT_OPTIONS
+		INX D
+		LDAX D
+		CPI 00H
+		JNZ PRINT_BOOT_OPTIONS
+		CALL IPUTS
+		DB 'ERROR: partition 1 < 16kB'
+		DB 00H
+		CALL NEWLINE
+		JMP BOOT_TINY_BASIC
+PRINT_BOOT_OPTIONS:
+        ; Print boot options
+        CALL IPUTS
+		DB 'Choose boot mode:'
+		DB 00H
+        CALL NEWLINE
+        CALL IPUTS
+		DB '1. CP/M (CF card)'
+		DB 00H
+        CALL NEWLINE
+        CALL IPUTS
+		DB '2. Tiny Basic (ROM)'
+		DB 00H
+        CALL NEWLINE
+        ; We need interrupts for keyboard and timer support
+        EI
+		; Wait for user input
+BOOT_MODE_INPUT:
+;		PUSH B
+;		PUSH D
+;		PUSH H
+;		CALL KBD2ASCII
+;		POP H
+;		POP D
+;		POP B
+		CALL CHKIO
+		CPI  00H
+		JZ BOOT_MODE_INPUT
+        ANI  7FH  		; MASK BIT 7 OFF
+        CPI 49			; Is it 1?
+        JZ BOOT_CPM		; It is, boot CPM
+        CPI 50			; Is it 2?
+        JZ BOOT_TINY_BASIC	; It is, boot Tiny Basic
+        JMP BOOT_MODE_INPUT
+        
+BOOT_CPM:
+		DI
+        CALL LOAD_PARTITION1
+        CALL NEWLINE
+        JMP LOAD_BASE
+        
+BOOT_TINY_BASIC:
         ;Enable interrupts
         EI
         
