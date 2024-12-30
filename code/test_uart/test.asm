@@ -1,6 +1,13 @@
+;IRQ0 - KBD
+;IRQ1 - UART_TX
+;IRQ2 - UART_RX
+;IRQ3 - RTC
+;IRQ4 - TIMER
+;IRQ5 - UNUSED
+;IRQ6 - UNUSED
+;IRQ7 - UNUSED
+
 		INCL "../common/definitions.asm"
-		
-FULLSYS EQU 1
 
         ORG  0C000H
         JMP  SET_PC
@@ -12,26 +19,42 @@ START:  LXI  H,STACK
 		JMP INIT
 		
 		INCL "../common/utils.asm"
+		INCL "../common/hexdump.asm"
+		INCL "../common/keyboard.asm"
 
 INIT:
-	IF FULLSYS
+        ;Set SYSTICK, RTCTICK and KBDDATA to 0x00
+        LXI  H, 0000H
+        SHLD SYSTICK
+        LXI  H, 0000H
+        SHLD RTCTICK
+        MVI A, 00H
+        STA  KBDDATA
         ;Initialize 8253
-  		MVI  A, 36H                     ;TIMER0 - baudrate generator for 8251
-  		OUT  CONTR_W_8253               ;Timer 0, write LSB then MSB, mode 3, binary 
- 	 	MVI  A, 13H                     ;LSB
-  		OUT  COUNT_REG_0_8253
-  		MVI  A, 00H                     ;MSB
-  		OUT  COUNT_REG_0_8253
-        MVI  A, 70H                     ;TIMER1 - systick
-        OUT CONTR_W_8253                ;Timer 1, write LSB then MSB, mode 0, binary
- 	 	MVI  A, 60H                     ;LSB, interrupt every 20ms
-  		OUT  COUNT_REG_1_8253
-  		MVI  A, 0EAH                    ;MSB, interrupt every 20ms
-  		OUT  COUNT_REG_1_8253        
+		MVI  A, 30H                     ;TIMER0 - systick
+		OUT  CONTR_W_8253               ;Timer 0, write LSB then MSB, mode 0, binary 
+		MVI  A, 00H                     ;LSB, interrupt every 20ms
+		OUT  COUNT_REG_0_8253
+		MVI  A, 0A0H                    ;MSB, interrupt every 20ms (0xF0 for 30 ms)
+		OUT  COUNT_REG_0_8253	
+		MVI  A, 0B6H                    ;TIMER2 - baudrate generator for 8251
+		OUT CONTR_W_8253                ;Timer 2, write LSB then MSB, mode 3, binary
+		MVI  A, 0DH                     ;LSB
+		OUT  COUNT_REG_2_8253
+		MVI  A, 00H                     ;MSB
+		OUT  COUNT_REG_2_8253          
         ;Initialize 8251
-        MVI	 A, 4EH
+        MVI  A, 00H
+        OUT  UART_8251_CTRL
+        MVI  A, 00H
+        OUT  UART_8251_CTRL
+        MVI  A, 00H
+        OUT  UART_8251_CTRL
+        MVI  A, 40H						;Initiate UART reset
+        OUT  UART_8251_CTRL
+        MVI	 A, 4EH						;Mode: 8 data, 1 stop, x16
         OUT	 UART_8251_CTRL
-        MVI	 A, 27H
+        MVI	 A, 37H
         OUT	 UART_8251_CTRL
         ;Initialize 8259
         MVI  A, 0FFH					;ICW1 - LSB of IR0_VECT = 0xE0, level triggered, 4 byte intervals, one 8259, ICW4 needed
@@ -40,7 +63,7 @@ INIT:
         OUT	 PIC_8259_HIGH				;ICW2 is written to the high port of 8259
         MVI  A, 02H						;ICW4 - NOT special full nested mode, not buffored, master, automatic EOI, 8080 processor
         OUT  PIC_8259_HIGH				;ICW4 is written to the high port of 8259        
-        MVI  A, 9BH						;OCW1 active TIMER, RTC and KBD interrupt
+        MVI  A, 0EFH					;OCW1 active TIMER; RTC, KBD and UART interrupts disabled
         OUT  PIC_8259_HIGH				;OCW1 is written to the high port of 8259
         MVI  A, 80H						;OCW2 - Rotation of priorities, no explicit EOI
         OUT  PIC_8259_LOW				;OCW2 is written to the low port of 8259
@@ -53,12 +76,14 @@ INIT:
 ;        OUT  RTC_CTRLE_REG
 ;        MVI  A, 04H                     ;TEST = 0, 24h mode, STOP = 0, RESET = 0
 ;        OUT  RTC_CTRLF_REG
+;TRYKBINIT:
+;        CALL KBDINIT                        ;Call init routine
+;        MOV A, B							;Move result of operation to A
+;        CPI 00H								;Check if OK
+;        JNZ TRYKBINIT						;Retry if not ok. TODO add limit of retries
 		EI
-	ENDIF
 		
 LOOP:
-		IN   UART_8251_CTRL 
-
 		MVI A, 84H
 		OUT PORT_74237
 		MVI C, 255
@@ -67,7 +92,13 @@ LOOP:
 		OUT PORT_74237
 		MVI C, 255
 		CALL DELAY
+		
+		MVI A, 0FAH
+		CALL HEXDUMP_A
+		
 		JMP LOOP
+		
+		INCL "../common/ps2_scancodes.asm"
 
         
 ;Interrupt routines

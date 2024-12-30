@@ -1,3 +1,12 @@
+;IRQ0 - KBD
+;IRQ1 - UART_TX
+;IRQ2 - UART_RX
+;IRQ3 - RTC
+;IRQ4 - TIMER
+;IRQ5 - UNUSED
+;IRQ6 - UNUSED
+;IRQ7 - UNUSED
+
 		INCL "../common/definitions.asm"
 		
 FULLSYS EQU 1
@@ -16,18 +25,18 @@ START:  LXI  H,STACK
 INIT:
 	IF FULLSYS
         ;Initialize 8253
-  		MVI  A, 36H                     ;TIMER0 - baudrate generator for 8251
-  		OUT  CONTR_W_8253               ;Timer 0, write LSB then MSB, mode 3, binary 
- 	 	MVI  A, 13H                     ;LSB
-  		OUT  COUNT_REG_0_8253
-  		MVI  A, 00H                     ;MSB
-  		OUT  COUNT_REG_0_8253
-        MVI  A, 70H                     ;TIMER1 - systick
-        OUT CONTR_W_8253                ;Timer 1, write LSB then MSB, mode 0, binary
- 	 	MVI  A, 60H                     ;LSB, interrupt every 20ms
-  		OUT  COUNT_REG_1_8253
-  		MVI  A, 0EAH                    ;MSB, interrupt every 20ms
-  		OUT  COUNT_REG_1_8253        
+		MVI  A, 30H                     ;TIMER0 - systick
+		OUT  CONTR_W_8253               ;Timer 0, write LSB then MSB, mode 0, binary 
+		MVI  A, 60H                     ;LSB, interrupt every 20ms
+		OUT  COUNT_REG_0_8253
+		MVI  A, 0EAH                    ;MSB, interrupt every 20ms (0xF0 for 30 ms)
+		OUT  COUNT_REG_0_8253	
+		MVI  A, 0B6H                    ;TIMER2 - baudrate generator for 8251
+		OUT CONTR_W_8253                ;Timer 2, write LSB then MSB, mode 3, binary
+		MVI  A, 13H                     ;LSB
+		OUT  COUNT_REG_2_8253
+		MVI  A, 00H                     ;MSB
+		OUT  COUNT_REG_2_8253          
         ;Initialize 8251
         MVI	 A, 4EH
         OUT	 UART_8251_CTRL
@@ -40,7 +49,7 @@ INIT:
         OUT	 PIC_8259_HIGH				;ICW2 is written to the high port of 8259
         MVI  A, 02H						;ICW4 - NOT special full nested mode, not buffored, master, automatic EOI, 8080 processor
         OUT  PIC_8259_HIGH				;ICW4 is written to the high port of 8259        
-        MVI  A, 9BH						;OCW1 active TIMER, RTC and KBD interrupt
+        MVI  A, 0EFH					;OCW1 active TIMER; RTC and KBD and UART interrupts disabled
         OUT  PIC_8259_HIGH				;OCW1 is written to the high port of 8259
         MVI  A, 80H						;OCW2 - Rotation of priorities, no explicit EOI
         OUT  PIC_8259_LOW				;OCW2 is written to the low port of 8259
@@ -112,9 +121,9 @@ TIMER_ISR:
         LHLD SYSTICK                    ;Load SYSTICK variable to HL
         INX H                           ;Increment HL
         SHLD SYSTICK                    ;Save HL in SYSTICK variable
- 	 	MVI  A, 00H                     ;Reload. LSB, interrupt every 20ms
+ 	 	MVI  A, 60H                     ;Reload. LSB, interrupt every 20ms
   		OUT  COUNT_REG_0_8253
-  		MVI  A, 0A0H                    ;Reload. MSB, interrupt every 20ms (0xF0 for 30 ms)
+  		MVI  A, 0EAH                    ;Reload. MSB, interrupt every 20ms (0xF0 for 30 ms)
   		OUT  COUNT_REG_0_8253                
         POP D
         POP H        
