@@ -1528,11 +1528,19 @@ INIT:   STA  OCSW
 		MVI  A, 0DH                     ;LSB
 		OUT  COUNT_REG_2_8253
 		MVI  A, 00H                     ;MSB
-		OUT  COUNT_REG_2_8253     
+		OUT  COUNT_REG_2_8253          
         ;Initialize 8251
-        MVI	 A, 4EH
+        MVI  A, 00H
+        OUT  UART_8251_CTRL
+        MVI  A, 00H
+        OUT  UART_8251_CTRL
+        MVI  A, 00H
+        OUT  UART_8251_CTRL
+        MVI  A, 40H						;Initiate UART reset
+        OUT  UART_8251_CTRL
+        MVI	 A, 4EH						;Mode: 8 data, 1 stop, x16
         OUT	 UART_8251_CTRL
-        MVI	 A, 27H
+        MVI	 A, 37H
         OUT	 UART_8251_CTRL
         ;Initialize 8259
         MVI  A, 0FFH					;ICW1 - LSB of IR0_VECT = 0xE0, level triggered, 4 byte intervals, one 8259, ICW4 needed
