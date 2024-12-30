@@ -20713,11 +20713,6 @@ high speed (Philips)</description>
 </net>
 <net name="!RESET" class="0">
 <segment>
-<wire x1="160.02" y1="-33.02" x2="165.1" y2="-33.02" width="0.1524" layer="91"/>
-<label x="165.1" y="-33.02" size="1.4224" layer="95" xref="yes"/>
-<pinref part="SV2" gate="1" pin="31"/>
-</segment>
-<segment>
 <pinref part="IC6" gate="A" pin="CLR"/>
 <wire x1="332.74" y1="-33.02" x2="325.12" y2="-33.02" width="0.1524" layer="91"/>
 <label x="325.12" y="-33.02" size="1.4224" layer="95" rot="R180" xref="yes"/>
@@ -20731,6 +20726,11 @@ high speed (Philips)</description>
 <pinref part="CON1" gate="G$1" pin="/RESET"/>
 <wire x1="205.74" y1="-299.72" x2="200.66" y2="-299.72" width="0.1524" layer="91"/>
 <label x="200.66" y="-299.72" size="1.4224" layer="95" rot="R180" xref="yes"/>
+</segment>
+<segment>
+<wire x1="160.02" y1="-25.4" x2="165.1" y2="-25.4" width="0.1524" layer="91"/>
+<label x="165.1" y="-25.4" size="1.4224" layer="95" xref="yes"/>
+<pinref part="SV2" gate="1" pin="37"/>
 </segment>
 </net>
 <net name="SET_BANK_A14" class="0">
@@ -21017,11 +21017,6 @@ high speed (Philips)</description>
 </net>
 <net name="RESET" class="0">
 <segment>
-<wire x1="160.02" y1="-25.4" x2="165.1" y2="-25.4" width="0.1524" layer="91"/>
-<label x="165.1" y="-25.4" size="1.4224" layer="95" xref="yes"/>
-<pinref part="SV2" gate="1" pin="37"/>
-</segment>
-<segment>
 <pinref part="IC1" gate="G$1" pin="RES_OUT"/>
 <wire x1="25.4" y1="-10.16" x2="30.48" y2="-10.16" width="0.1524" layer="91"/>
 <label x="30.48" y="-10.16" size="1.4224" layer="95" xref="yes"/>
@@ -21030,6 +21025,11 @@ high speed (Philips)</description>
 <wire x1="0" y1="-208.28" x2="-5.08" y2="-208.28" width="0.1524" layer="91"/>
 <label x="-5.08" y="-208.28" size="1.4224" layer="95" rot="R180" xref="yes"/>
 <pinref part="IC8" gate="B" pin="I"/>
+</segment>
+<segment>
+<wire x1="160.02" y1="-33.02" x2="165.1" y2="-33.02" width="0.1524" layer="91"/>
+<label x="165.1" y="-33.02" size="1.4224" layer="95" xref="yes"/>
+<pinref part="SV2" gate="1" pin="31"/>
 </segment>
 </net>
 <net name="A14_CPU" class="0">
