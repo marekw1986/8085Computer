@@ -20,7 +20,6 @@ START:  LXI  H,STACK
 		
 		INCL "../common/utils.asm"
 		INCL "../common/hexdump.asm"
-		INCL "../common/keyboard.asm"
 
 INIT:
         ;Set SYSTICK, RTCTICK and KBDDATA to 0x00
@@ -76,11 +75,6 @@ INIT:
 ;        OUT  RTC_CTRLE_REG
 ;        MVI  A, 04H                     ;TEST = 0, 24h mode, STOP = 0, RESET = 0
 ;        OUT  RTC_CTRLF_REG
-;TRYKBINIT:
-;        CALL KBDINIT                        ;Call init routine
-;        MOV A, B							;Move result of operation to A
-;        CPI 00H								;Check if OK
-;        JNZ TRYKBINIT						;Retry if not ok. TODO add limit of retries
 		EI
 		
 LOOP:
@@ -97,8 +91,6 @@ LOOP:
 		CALL HEXDUMP_A
 		
 		JMP LOOP
-		
-		INCL "../common/ps2_scancodes.asm"
 
         
 ;Interrupt routines
@@ -126,17 +118,11 @@ KBD_ISR:
 		PUSH PSW						;Save condition bits and accumulator
         PUSH H
         PUSH D
-        ;IN KBD_STATUS                  ;NO NEED TO TEST, INTERRUPT MODE!
-        ;ANI 01H                         ;Check if output buffer full
-        ;JZ KBD_ISR_RET                  ;Output buffer empty, end ISR
-        IN KBD_DATA                     ;Get keyboard data
-        STA KBDDATA                     ;Save received code
-KBD_ISR_RET:        
         POP D
         POP H        
 		POP PSW							;Restore machine status
         EI                              ;Re-enable interrupts
-		RET								;Return to interrupted program
+		RET								;Return to interrupted program						;Return to interrupted program
 
 TIMER_ISR:
 		PUSH PSW						;Save condition bits and accumulator
