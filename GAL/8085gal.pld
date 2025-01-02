@@ -5,25 +5,17 @@ G0
 NC A4 NC RD WR IOM LOCIOCS NC NC GND
 NC O8 O7 LOCCFCS LOCPTCS MEMWR MEMRD IOWR IORD VCC
 
-; /UART = /CS * /A9 * /A8
-; /TIMER = /CS * /A9 * A8
-; /IN = /RD * /CS * A9 * /A8 
-; /SP0 = /WR * /CS * A9 * A8
-; /DCFO = DCFI
 /MEMRD = /IOM * /RD
 /MEMWR = /IOM * /WR
 /IORD = IOM * /RD
 /IOWR = IOM * /WR
 /LOCPTCS = /LOCIOCS * /A4 * IOM * /WR
-/LOCCFCS = /LOCIOCS * A4
+/LOCCFCS = /LOCIOCS * A4 * IOM
 O7 = GND
 O8 = GND
 
 DESCRIPTION
 
-; 6502 digital clock module address decoder
-; Memory Map
-; 0x6000 - UART
-; 0x6100 - TIMER
-; 0x6200 - IN PORT (status flags)
-; 0x6300 - SP0
+; IO address decoder
+; 0xE0 - 74273 port
+; 0xF0 - CF card
