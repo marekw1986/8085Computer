@@ -37,7 +37,7 @@ START:  LXI  H,STACK                   ;*** COLD START ***
         JMP  INIT
 ;
 
-		INCL "cf.asm"
+		INCL "../common/cf.asm"
 		INCL "keyboard.asm"
 		INCL "../common/utils.asm"
 		INCL "../common/hexdump.asm"
@@ -1688,6 +1688,7 @@ BOOT_CPM:
         JMP LOAD_BASE
         
 BOOT_TINY_BASIC:
+		MVI D, 02H
         ;Enable interrupts
         EI
         
@@ -1761,13 +1762,6 @@ INPIO_ROM
 MSG1:   DB   'TINY '
         DB   'BASIC'
         DB   CR
-CFMSG1: DB	 'CF CARD: '
-		DB	 CR
-MISSINGSTR:
-		DB	 'missing'
-		DB	 CR
-PARTMS: DB	 'Partition table'
-		DB	 CR
 CFERRM: DB   'CF ERROR: '
         DB   CR
 STARTADDRSTR:
@@ -1776,26 +1770,6 @@ STARTADDRSTR:
 SIZESTR:
 		DB	 'Size: '
 		DB	 CR
-BOOTMODESTR:
-		DB	 'Choose boot mode:'
-		DB	 CR
-BOOTCFSTR:
-		DB	 '1. CP/M (CF card)'
-		DB	 CR
-BOOTTBSTR:
-		DB	 '2. Tiny Basic (ROM)'
-		DB	 CR
-MBRERRORSTR:
-		DB	 'ERROR: faulty MBR'
-		DB	 CR
-MISSINGPART1ERROR:
-		DB	 'ERROR: partition 1 missing'
-		DB	 CR
-SIZEPART1ERROR:
-		DB	 'ERROR: partition 1 < 16kB'
-		DB	 CR
-KBDMSG: DB   'INITIALIZING KEYBOARD'
-        DB   CR
 
 ;
 ;*************************************************************
@@ -2047,8 +2021,8 @@ RTC_ISR:
 		RET								;Return to interrupted program
 
 ;Interrupt vectors
-IR0_VECT:
 		ORG  0FFE0H
+IR0_VECT:
 		JMP KBD_ISR
         NOP
         ;EI
@@ -2093,7 +2067,8 @@ IR7_VECT
 ;
 LSTROM:                                 ;ALL ABOVE CAN BE ROM
 ;       ORG  1000H                      ;HERE DOWN MUST BE RAM
-        ORG  0100H
+;       ORG  0100H
+		ORG  0200H
 OCSW    DB   0FFH      					;SWITCH FOR OUTPUT
 OUTIO:  DS   3
 WAITIO: DS   10
@@ -2131,8 +2106,6 @@ KBDKRFL DS	 1							;Keyboard key release flag
 KBDSFFL DS	 1							;Keyboard Shift flag
 KBDOLD	DS	 1							;Keyboard old data
 KBDNEW	DS	 1							;Keyboard new data
-CURX    DS   1                          ;VDP cursor x position
-CURY    DS   1                          ;VDP cursor y position
 STKLMT: DS   1                          ;TOP LIMIT FOR STACK
 ;       ORG  1400H
         ORG  7FFFH
