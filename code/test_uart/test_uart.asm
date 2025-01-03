@@ -157,8 +157,8 @@ RTC_ISR:
 		RET								;Return to interrupted program
 
 ;Interrupt vectors
-IR0_VECT:
 		ORG  0FFE0H
+IR0_VECT:
 		JMP KBD_ISR
         NOP
         ;EI
