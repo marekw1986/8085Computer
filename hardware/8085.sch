@@ -19263,6 +19263,7 @@ high speed (Philips)</description>
 <segment>
 <pinref part="IC8" gate="P" pin="VCC"/>
 <wire x1="-22.86" y1="-251.46" x2="-22.86" y2="-243.84" width="0.1524" layer="91"/>
+<label x="-22.86" y="-243.84" size="1.4224" layer="95" rot="R90" xref="yes"/>
 </segment>
 <segment>
 <wire x1="-93.98" y1="78.74" x2="-93.98" y2="83.82" width="0.1524" layer="91"/>
@@ -19391,6 +19392,7 @@ high speed (Philips)</description>
 <pinref part="IC3" gate="G$1" pin="VCC"/>
 <wire x1="48.26" y1="-76.2" x2="45.72" y2="-76.2" width="0.1524" layer="91"/>
 <wire x1="45.72" y1="-76.2" x2="45.72" y2="-71.12" width="0.1524" layer="91"/>
+<label x="45.72" y="-71.12" size="1.4224" layer="95" rot="R90" xref="yes"/>
 </segment>
 </net>
 <net name="GND" class="0">
@@ -20549,6 +20551,7 @@ high speed (Philips)</description>
 <segment>
 <pinref part="IC3" gate="G$1" pin="CLK"/>
 <wire x1="48.26" y1="-78.74" x2="43.18" y2="-78.74" width="0.1524" layer="91"/>
+<label x="43.18" y="-78.74" size="1.4224" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="CS_EPROM" class="0">
@@ -21298,6 +21301,7 @@ high speed (Philips)</description>
 <segment>
 <pinref part="IC3" gate="G$1" pin="O6"/>
 <wire x1="68.58" y1="-96.52" x2="76.2" y2="-96.52" width="0.1524" layer="91"/>
+<label x="76.2" y="-96.52" size="1.4224" layer="95" xref="yes"/>
 </segment>
 <segment>
 <pinref part="IC11" gate="A" pin="G"/>
