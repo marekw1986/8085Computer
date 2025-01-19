@@ -18828,7 +18828,7 @@ high speed (Philips)</description>
 <part name="C8" library="rcl" deviceset="C-EU" device="C0603" value="22p"/>
 <part name="GND17" library="supply1" deviceset="GND" device=""/>
 <part name="GND18" library="supply1" deviceset="GND" device=""/>
-<part name="R5" library="rcl" deviceset="R-EU_" device="M1206"/>
+<part name="R5" library="rcl" deviceset="R-EU_" device="R0603"/>
 <part name="LED1" library="led" deviceset="LED" device="5MM"/>
 <part name="R6" library="rcl" deviceset="R-EU_" device="0204/5"/>
 <part name="R9" library="rcl" deviceset="R-EU_" device="R0603"/>
