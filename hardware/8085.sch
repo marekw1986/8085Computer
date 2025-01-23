@@ -18838,6 +18838,9 @@ high speed (Philips)</description>
 <part name="R13" library="rcl" deviceset="R-EU_" device="R0603"/>
 <part name="R14" library="rcl" deviceset="R-EU_" device="0204/7"/>
 <part name="GND10" library="supply1" deviceset="GND" device=""/>
+<part name="R15" library="rcl" deviceset="R-EU_" device="0204/7"/>
+<part name="R16" library="rcl" deviceset="R-EU_" device="0204/7"/>
+<part name="R17" library="rcl" deviceset="R-EU_" device="0207/10"/>
 </parts>
 <sheets>
 <sheet>
@@ -18932,6 +18935,9 @@ high speed (Philips)</description>
 <instance part="R13" gate="G$1" x="-25.4" y="43.18"/>
 <instance part="R14" gate="G$1" x="327.66" y="-119.38" rot="R90"/>
 <instance part="GND10" gate="1" x="48.26" y="-157.48"/>
+<instance part="R15" gate="G$1" x="45.72" y="7.62" rot="R90"/>
+<instance part="R16" gate="G$1" x="50.8" y="7.62" rot="R90"/>
+<instance part="R17" gate="G$1" x="73.66" y="-109.22" rot="R90"/>
 </instances>
 <busses>
 </busses>
@@ -19137,6 +19143,22 @@ high speed (Philips)</description>
 <pinref part="R14" gate="G$1" pin="2"/>
 <wire x1="327.66" y1="-114.3" x2="327.66" y2="-111.76" width="0.1524" layer="91"/>
 <label x="327.66" y="-111.76" size="1.4224" layer="95" rot="R90" xref="yes"/>
+</segment>
+<segment>
+<pinref part="R15" gate="G$1" pin="2"/>
+<wire x1="45.72" y1="12.7" x2="45.72" y2="15.24" width="0.1524" layer="91"/>
+<pinref part="R16" gate="G$1" pin="2"/>
+<wire x1="45.72" y1="15.24" x2="48.26" y2="15.24" width="0.1524" layer="91"/>
+<wire x1="48.26" y1="15.24" x2="50.8" y2="15.24" width="0.1524" layer="91"/>
+<wire x1="50.8" y1="15.24" x2="50.8" y2="12.7" width="0.1524" layer="91"/>
+<wire x1="48.26" y1="15.24" x2="48.26" y2="17.78" width="0.1524" layer="91"/>
+<junction x="48.26" y="15.24"/>
+<label x="48.26" y="17.78" size="1.4224" layer="95" rot="R90" xref="yes"/>
+</segment>
+<segment>
+<pinref part="R17" gate="G$1" pin="1"/>
+<wire x1="73.66" y1="-114.3" x2="73.66" y2="-116.84" width="0.1524" layer="91"/>
+<label x="73.66" y="-116.84" size="1.4224" layer="95" rot="R270" xref="yes"/>
 </segment>
 </net>
 <net name="GND" class="0">
@@ -20398,8 +20420,12 @@ high speed (Philips)</description>
 </segment>
 <segment>
 <pinref part="IC3" gate="G$1" pin="O6"/>
-<wire x1="68.58" y1="-96.52" x2="76.2" y2="-96.52" width="0.1524" layer="91"/>
+<wire x1="68.58" y1="-96.52" x2="73.66" y2="-96.52" width="0.1524" layer="91"/>
 <label x="76.2" y="-96.52" size="1.4224" layer="95" xref="yes"/>
+<pinref part="R17" gate="G$1" pin="2"/>
+<wire x1="73.66" y1="-96.52" x2="76.2" y2="-96.52" width="0.1524" layer="91"/>
+<wire x1="73.66" y1="-104.14" x2="73.66" y2="-96.52" width="0.1524" layer="91"/>
+<junction x="73.66" y="-96.52"/>
 </segment>
 </net>
 <net name="SET_BANK_A14" class="0">
@@ -20801,8 +20827,12 @@ high speed (Philips)</description>
 <net name="RD" class="0">
 <segment>
 <pinref part="IC1" gate="G$1" pin="RD"/>
-<wire x1="25.4" y1="0" x2="30.48" y2="0" width="0.1524" layer="91"/>
-<label x="30.48" y="0" size="1.4224" layer="95" xref="yes"/>
+<wire x1="25.4" y1="0" x2="45.72" y2="0" width="0.1524" layer="91"/>
+<label x="55.88" y="0" size="1.4224" layer="95" xref="yes"/>
+<pinref part="R15" gate="G$1" pin="1"/>
+<wire x1="45.72" y1="0" x2="55.88" y2="0" width="0.1524" layer="91"/>
+<wire x1="45.72" y1="2.54" x2="45.72" y2="0" width="0.1524" layer="91"/>
+<junction x="45.72" y="0"/>
 </segment>
 <segment>
 <pinref part="IC3" gate="G$1" pin="I3"/>
@@ -20838,8 +20868,12 @@ high speed (Philips)</description>
 <net name="WR" class="0">
 <segment>
 <pinref part="IC1" gate="G$1" pin="WR"/>
-<wire x1="25.4" y1="-2.54" x2="30.48" y2="-2.54" width="0.1524" layer="91"/>
-<label x="30.48" y="-2.54" size="1.4224" layer="95" xref="yes"/>
+<wire x1="25.4" y1="-2.54" x2="50.8" y2="-2.54" width="0.1524" layer="91"/>
+<label x="55.88" y="-2.54" size="1.4224" layer="95" xref="yes"/>
+<pinref part="R16" gate="G$1" pin="1"/>
+<wire x1="50.8" y1="-2.54" x2="55.88" y2="-2.54" width="0.1524" layer="91"/>
+<wire x1="50.8" y1="2.54" x2="50.8" y2="-2.54" width="0.1524" layer="91"/>
+<junction x="50.8" y="-2.54"/>
 </segment>
 <segment>
 <pinref part="IC3" gate="G$1" pin="I4"/>
