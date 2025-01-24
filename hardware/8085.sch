@@ -13093,6 +13093,20 @@ Based on the following sources:
 <pin name="Y2" x="12.7" y="-2.54" length="middle" direction="out" function="dot" rot="R180"/>
 <pin name="Y3" x="12.7" y="-5.08" length="middle" direction="out" function="dot" rot="R180"/>
 </symbol>
+<symbol name="7474">
+<wire x1="-7.62" y1="-7.62" x2="7.62" y2="-7.62" width="0.4064" layer="94"/>
+<wire x1="7.62" y1="-7.62" x2="7.62" y2="7.62" width="0.4064" layer="94"/>
+<wire x1="7.62" y1="7.62" x2="-7.62" y2="7.62" width="0.4064" layer="94"/>
+<wire x1="-7.62" y1="7.62" x2="-7.62" y2="-7.62" width="0.4064" layer="94"/>
+<text x="-7.62" y="8.255" size="1.778" layer="95">&gt;NAME</text>
+<text x="-7.62" y="-10.16" size="1.778" layer="96">&gt;VALUE</text>
+<pin name="CLR" x="-12.7" y="-5.08" length="middle" direction="in" function="dot"/>
+<pin name="D" x="-12.7" y="2.54" length="middle" direction="in"/>
+<pin name="CLK" x="-12.7" y="-2.54" length="middle" direction="in" function="clk"/>
+<pin name="PRE" x="-12.7" y="5.08" length="middle" direction="in" function="dot"/>
+<pin name="Q" x="12.7" y="5.08" length="middle" direction="out" rot="R180"/>
+<pin name="!Q" x="12.7" y="-5.08" length="middle" direction="out" rot="R180"/>
+</symbol>
 </symbols>
 <devicesets>
 <deviceset name="74*138" prefix="IC">
@@ -13641,6 +13655,94 @@ Based on the following sources:
 <connect gate="B" pin="Y1" pad="14"/>
 <connect gate="B" pin="Y2" pad="13"/>
 <connect gate="B" pin="Y3" pad="12"/>
+<connect gate="P" pin="GND" pad="10"/>
+<connect gate="P" pin="VCC" pad="20"/>
+</connects>
+<technologies>
+<technology name="AC"/>
+<technology name="ACT"/>
+<technology name="HC"/>
+<technology name="HCT"/>
+<technology name="LS"/>
+<technology name="S"/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="74*74" prefix="IC">
+<description>Dual D type positive edge triggered &lt;b&gt;FLIP FLOP&lt;/b&gt;, preset and clear</description>
+<gates>
+<gate name="A" symbol="7474" x="20.32" y="0" swaplevel="1"/>
+<gate name="B" symbol="7474" x="20.32" y="-22.86" swaplevel="1"/>
+<gate name="P" symbol="PWRN" x="-5.08" y="0" addlevel="request"/>
+</gates>
+<devices>
+<device name="N" package="DIL14">
+<connects>
+<connect gate="A" pin="!Q" pad="6"/>
+<connect gate="A" pin="CLK" pad="3"/>
+<connect gate="A" pin="CLR" pad="1"/>
+<connect gate="A" pin="D" pad="2"/>
+<connect gate="A" pin="PRE" pad="4"/>
+<connect gate="A" pin="Q" pad="5"/>
+<connect gate="B" pin="!Q" pad="8"/>
+<connect gate="B" pin="CLK" pad="11"/>
+<connect gate="B" pin="CLR" pad="13"/>
+<connect gate="B" pin="D" pad="12"/>
+<connect gate="B" pin="PRE" pad="10"/>
+<connect gate="B" pin="Q" pad="9"/>
+<connect gate="P" pin="GND" pad="7"/>
+<connect gate="P" pin="VCC" pad="14"/>
+</connects>
+<technologies>
+<technology name="AC"/>
+<technology name="ACT"/>
+<technology name="HC"/>
+<technology name="HCT"/>
+<technology name="LS"/>
+<technology name="S"/>
+</technologies>
+</device>
+<device name="D" package="SO14">
+<connects>
+<connect gate="A" pin="!Q" pad="6"/>
+<connect gate="A" pin="CLK" pad="3"/>
+<connect gate="A" pin="CLR" pad="1"/>
+<connect gate="A" pin="D" pad="2"/>
+<connect gate="A" pin="PRE" pad="4"/>
+<connect gate="A" pin="Q" pad="5"/>
+<connect gate="B" pin="!Q" pad="8"/>
+<connect gate="B" pin="CLK" pad="11"/>
+<connect gate="B" pin="CLR" pad="13"/>
+<connect gate="B" pin="D" pad="12"/>
+<connect gate="B" pin="PRE" pad="10"/>
+<connect gate="B" pin="Q" pad="9"/>
+<connect gate="P" pin="GND" pad="7"/>
+<connect gate="P" pin="VCC" pad="14"/>
+</connects>
+<technologies>
+<technology name="AC"/>
+<technology name="ACT"/>
+<technology name="HC"/>
+<technology name="HCT"/>
+<technology name="LS"/>
+<technology name="S"/>
+</technologies>
+</device>
+<device name="FK" package="LCC20">
+<connects>
+<connect gate="A" pin="!Q" pad="9"/>
+<connect gate="A" pin="CLK" pad="4"/>
+<connect gate="A" pin="CLR" pad="2"/>
+<connect gate="A" pin="D" pad="3"/>
+<connect gate="A" pin="PRE" pad="6"/>
+<connect gate="A" pin="Q" pad="8"/>
+<connect gate="B" pin="!Q" pad="12"/>
+<connect gate="B" pin="CLK" pad="16"/>
+<connect gate="B" pin="CLR" pad="19"/>
+<connect gate="B" pin="D" pad="18"/>
+<connect gate="B" pin="PRE" pad="14"/>
+<connect gate="B" pin="Q" pad="13"/>
 <connect gate="P" pin="GND" pad="10"/>
 <connect gate="P" pin="VCC" pad="20"/>
 </connects>
@@ -18840,7 +18942,11 @@ high speed (Philips)</description>
 <part name="GND10" library="supply1" deviceset="GND" device=""/>
 <part name="R15" library="rcl" deviceset="R-EU_" device="0204/7"/>
 <part name="R16" library="rcl" deviceset="R-EU_" device="0204/7"/>
-<part name="R17" library="rcl" deviceset="R-EU_" device="0207/10"/>
+<part name="R17" library="rcl" deviceset="R-EU_" device="0204/7"/>
+<part name="IC8" library="74xx-eu" deviceset="74*74" device="N" technology="HCT"/>
+<part name="GND21" library="supply1" deviceset="GND" device=""/>
+<part name="R18" library="rcl" deviceset="R-EU_" device="0204/5"/>
+<part name="C12" library="rcl" deviceset="C-EU" device="C0805" value="100n"/>
 </parts>
 <sheets>
 <sheet>
@@ -18938,6 +19044,11 @@ high speed (Philips)</description>
 <instance part="R15" gate="G$1" x="45.72" y="7.62" rot="R90"/>
 <instance part="R16" gate="G$1" x="50.8" y="7.62" rot="R90"/>
 <instance part="R17" gate="G$1" x="73.66" y="-109.22" rot="R90"/>
+<instance part="IC8" gate="A" x="12.7" y="-200.66"/>
+<instance part="IC8" gate="B" x="58.42" y="-200.66"/>
+<instance part="GND21" gate="1" x="-2.54" y="-210.82"/>
+<instance part="R18" gate="G$1" x="-2.54" y="-180.34" rot="R90"/>
+<instance part="C12" gate="G$1" x="236.22" y="137.16"/>
 </instances>
 <busses>
 </busses>
@@ -19127,6 +19238,10 @@ high speed (Philips)</description>
 <wire x1="220.98" y1="142.24" x2="228.6" y2="142.24" width="0.1524" layer="91"/>
 <wire x1="228.6" y1="142.24" x2="228.6" y2="139.7" width="0.1524" layer="91"/>
 <junction x="220.98" y="142.24"/>
+<pinref part="C12" gate="G$1" pin="1"/>
+<wire x1="228.6" y1="142.24" x2="236.22" y2="142.24" width="0.1524" layer="91"/>
+<wire x1="236.22" y1="142.24" x2="236.22" y2="139.7" width="0.1524" layer="91"/>
+<junction x="228.6" y="142.24"/>
 </segment>
 <segment>
 <pinref part="IC3" gate="G$1" pin="VCC"/>
@@ -19159,6 +19274,10 @@ high speed (Philips)</description>
 <pinref part="R17" gate="G$1" pin="1"/>
 <wire x1="73.66" y1="-114.3" x2="73.66" y2="-116.84" width="0.1524" layer="91"/>
 <label x="73.66" y="-116.84" size="1.4224" layer="95" rot="R270" xref="yes"/>
+</segment>
+<segment>
+<pinref part="R18" gate="G$1" pin="2"/>
+<wire x1="-2.54" y1="-175.26" x2="-2.54" y2="-172.72" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="GND" class="0">
@@ -19253,6 +19372,10 @@ high speed (Philips)</description>
 <wire x1="220.98" y1="129.54" x2="228.6" y2="129.54" width="0.1524" layer="91"/>
 <wire x1="228.6" y1="129.54" x2="228.6" y2="132.08" width="0.1524" layer="91"/>
 <junction x="220.98" y="129.54"/>
+<pinref part="C12" gate="G$1" pin="2"/>
+<wire x1="228.6" y1="129.54" x2="236.22" y2="129.54" width="0.1524" layer="91"/>
+<wire x1="236.22" y1="129.54" x2="236.22" y2="132.08" width="0.1524" layer="91"/>
+<junction x="228.6" y="129.54"/>
 </segment>
 <segment>
 <pinref part="IC9" gate="P" pin="GND"/>
@@ -19429,6 +19552,20 @@ high speed (Philips)</description>
 <pinref part="GND10" gate="1" pin="GND"/>
 <wire x1="50.8" y1="-147.32" x2="48.26" y2="-147.32" width="0.1524" layer="91"/>
 <wire x1="48.26" y1="-147.32" x2="48.26" y2="-154.94" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="IC8" gate="A" pin="CLR"/>
+<pinref part="GND21" gate="1" pin="GND"/>
+<wire x1="0" y1="-205.74" x2="-2.54" y2="-205.74" width="0.1524" layer="91"/>
+<wire x1="-2.54" y1="-205.74" x2="-2.54" y2="-208.28" width="0.1524" layer="91"/>
+<pinref part="IC8" gate="A" pin="CLK"/>
+<wire x1="0" y1="-203.2" x2="-2.54" y2="-203.2" width="0.1524" layer="91"/>
+<wire x1="-2.54" y1="-203.2" x2="-2.54" y2="-205.74" width="0.1524" layer="91"/>
+<junction x="-2.54" y="-205.74"/>
+<pinref part="IC8" gate="A" pin="D"/>
+<wire x1="0" y1="-198.12" x2="-2.54" y2="-198.12" width="0.1524" layer="91"/>
+<wire x1="-2.54" y1="-198.12" x2="-2.54" y2="-203.2" width="0.1524" layer="91"/>
+<junction x="-2.54" y="-203.2"/>
 </segment>
 </net>
 <net name="D0" class="0">
@@ -20903,19 +21040,13 @@ high speed (Philips)</description>
 <label x="30.48" y="5.08" size="1.4224" layer="95" xref="yes"/>
 </segment>
 <segment>
-<pinref part="IC3" gate="G$1" pin="I5"/>
-<wire x1="48.26" y1="-93.98" x2="43.18" y2="-93.98" width="0.1524" layer="91"/>
-<label x="43.18" y="-93.98" size="1.4224" layer="95" rot="R180" xref="yes"/>
-</segment>
-<segment>
-<pinref part="IC9" gate="A" pin="G1"/>
-<wire x1="116.84" y1="-144.78" x2="111.76" y2="-144.78" width="0.1524" layer="91"/>
-<label x="111.76" y="-144.78" size="1.4224" layer="95" rot="R180" xref="yes"/>
-</segment>
-<segment>
 <pinref part="SV2" gate="1" pin="39"/>
 <wire x1="160.02" y1="-22.86" x2="165.1" y2="-22.86" width="0.1524" layer="91"/>
 <label x="165.1" y="-22.86" size="1.4224" layer="95" xref="yes"/>
+</segment>
+<segment>
+<pinref part="IC8" gate="B" pin="D"/>
+<wire x1="45.72" y1="-198.12" x2="35.56" y2="-198.12" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="LOCAL_PORT_CS" class="0">
@@ -21211,6 +21342,44 @@ high speed (Philips)</description>
 <pinref part="IC2" gate="A" pin="CLK"/>
 <wire x1="-2.54" y1="119.38" x2="-7.62" y2="119.38" width="0.1524" layer="91"/>
 <label x="-7.62" y="119.38" size="1.4224" layer="95" rot="R180" xref="yes"/>
+</segment>
+<segment>
+<pinref part="IC8" gate="B" pin="CLK"/>
+<wire x1="45.72" y1="-203.2" x2="35.56" y2="-203.2" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$17" class="0">
+<segment>
+<pinref part="IC8" gate="A" pin="PRE"/>
+<pinref part="R18" gate="G$1" pin="1"/>
+<wire x1="0" y1="-195.58" x2="-2.54" y2="-195.58" width="0.1524" layer="91"/>
+<wire x1="-2.54" y1="-195.58" x2="-2.54" y2="-187.96" width="0.1524" layer="91"/>
+<wire x1="-2.54" y1="-187.96" x2="-2.54" y2="-185.42" width="0.1524" layer="91"/>
+<wire x1="-2.54" y1="-187.96" x2="43.18" y2="-187.96" width="0.1524" layer="91"/>
+<wire x1="43.18" y1="-187.96" x2="43.18" y2="-195.58" width="0.1524" layer="91"/>
+<junction x="-2.54" y="-187.96"/>
+<pinref part="IC8" gate="B" pin="PRE"/>
+<wire x1="43.18" y1="-195.58" x2="45.72" y2="-195.58" width="0.1524" layer="91"/>
+<wire x1="43.18" y1="-195.58" x2="43.18" y2="-205.74" width="0.1524" layer="91"/>
+<junction x="43.18" y="-195.58"/>
+<pinref part="IC8" gate="B" pin="CLR"/>
+<wire x1="43.18" y1="-205.74" x2="45.72" y2="-205.74" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="IO_M_SYNC" class="0">
+<segment>
+<pinref part="IC8" gate="B" pin="Q"/>
+<wire x1="71.12" y1="-195.58" x2="78.74" y2="-195.58" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="IC9" gate="A" pin="G1"/>
+<wire x1="116.84" y1="-144.78" x2="111.76" y2="-144.78" width="0.1524" layer="91"/>
+<label x="111.76" y="-144.78" size="1.4224" layer="95" rot="R180" xref="yes"/>
+</segment>
+<segment>
+<pinref part="IC3" gate="G$1" pin="I5"/>
+<wire x1="48.26" y1="-93.98" x2="43.18" y2="-93.98" width="0.1524" layer="91"/>
+<label x="43.18" y="-93.98" size="1.4224" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 </nets>
