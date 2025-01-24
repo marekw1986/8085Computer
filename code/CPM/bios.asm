@@ -198,60 +198,17 @@ GOCPM:
 		JMP CCP		;Go to the CP/M for further processing
 	
 BIOS_CONST_PROC:
-		PUSH H				; Save content  of HL on original stack, then switch to bios stack
-		LXI H, 0000H
-		DAD SP	; HL = HL + SP
-		SHLD ORIGINAL_SP
-		LXI H, BIOS_STACK
-		SPHL	
-        IN KBD_STATUS
-        ANI 01H                         ; Check if output buffer full
-        JZ BIOS_CONST_PROC_RET    ; Output buffer empty, return 0
-        IN KBD_DATA
-        STA KBDDATA
-		PUSH B
-		PUSH D
-		CALL KBD2ASCII
-		POP D
-		POP B
-		STA LAST_CHAR
-		CPI 00H
-		JZ BIOS_CONST_PROC_RET 
-		MVI A, 0FFH						; Otherwise return 0xFF
-BIOS_CONST_PROC_RET:
-		LHLD ORIGINAL_SP; Restore original stack
-		SPHL
-		POP H
+        IN   UART_8251_CTRL
+        NOP                             ;STATUS BIT FLIPPED?
+        ANI  RxRDY_MASK                 ;MASK STATUS BIT
 		RET
 	
 BIOS_CONIN_PROC:
-		PUSH H				; Save content  of HL on original stack, then switch to bios stack
-		LXI H, 0000H
-		DAD SP	; HL = HL + SP
-		SHLD ORIGINAL_SP
-		LXI H, BIOS_STACK
-		SPHL
-		LDA LAST_CHAR
-		CPI 00H
-		JNZ BIOS_CONIN_RET
-BIOS_CONIN_LOOP:
-        IN KBD_STATUS
-        ANI 01H                         ; Check if output buffer full
-        JZ BIOS_CONIN_LOOP    			; Output buffer empty, return 0
-        IN KBD_DATA
-        STA KBDDATA		
-		PUSH B
-		PUSH D
-		CALL KBD2ASCII
-		POP D
-		POP B
-		CPI  00H
-		JZ BIOS_CONIN_LOOP
-BIOS_CONIN_RET:
-		ANI  7FH	
-		LHLD ORIGINAL_SP; Restore original stack
-		SPHL
-		POP H			; Restore original content of HL		
+        IN   UART_8251_CTRL
+        NOP
+        ANI  RxRDY_MASK
+        JZ BIOS_CONIN_PROC
+        IN   UART_8251_DATA
 		RET
 	
 BIOS_CONOUT_PROC:
