@@ -1549,7 +1549,7 @@ INIT:   STA  OCSW
         OUT	 PIC_8259_HIGH				;ICW2 is written to the high port of 8259
         MVI  A, 02H						;ICW4 - NOT special full nested mode, not buffored, master, automatic EOI, 8080 processor
         OUT  PIC_8259_HIGH				;ICW4 is written to the high port of 8259        
-        MVI  A, 0E6H					;OCW1 TIMER disabled, RTC acrive, KBD disabled
+        MVI  A, 0EFH					;OCW1 active TIMER; RTC, KBD and UART interrupts disabled
         OUT  PIC_8259_HIGH				;OCW1 is written to the high port of 8259
         MVI  A, 80H						;OCW2 - Rotation of priorities, no explicit EOI
         OUT  PIC_8259_LOW				;OCW2 is written to the low port of 8259
@@ -1575,6 +1575,16 @@ INIT:   STA  OCSW
         LXI  D, INPIO_ROM               ;SOURCE
         LXI  H, INPIO                   ;DESTINATION
         CALL MEMCOPY
+
+        ; Wait before initializing CF card
+		MVI C, 255
+		CALL DELAY
+        MVI C, 255
+		CALL DELAY
+		MVI C, 255
+		CALL DELAY
+		MVI C, 255
+		CALL DELAY
         
 		CALL IPUTS
 		DB 'CF CARD: '
@@ -1589,7 +1599,25 @@ INIT:   STA  OCSW
 		JMP BOOT_TINY_BASIC
 GET_CFINFO:
         CALL CFINFO
+        CALL IPUTS
+        DB 'Received MBR: '
+        DB 00H
         CALL CFGETMBR
+        ; HEXDUMP MBR - START
+        ;LXI D, LOAD_BASE
+        ;MVI B, 128
+        ;CALL HEXDUMP
+        ;LXI D, LOAD_BASE+128
+        ;MVI B, 128
+        ;CALL HEXDUMP
+        ;LXI D, LOAD_BASE+256
+        ;MVI B, 128
+        ;CALL HEXDUMP
+        ;LXI D, LOAD_BASE+384
+        ;MVI B, 128
+        ;CALL HEXDUMP
+        ;CALL NEWLINE
+        ; HEXDUMP MBR - END
         ; Check if MBR is proper
         LXI D, LOAD_BASE+510
         LDAX D
