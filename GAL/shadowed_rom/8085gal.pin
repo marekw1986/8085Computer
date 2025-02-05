@@ -1,0 +1,29 @@
+
+
+ Pin # | Name     | Pin Type
+-----------------------------
+   1   | CLOCK    | Clock/Input
+   2   | A4       | Input
+   3   | I1       | Input
+   4   | IOMSYN   | Input
+   5   | ROMSHA   | Input
+   6   | RESIN    | Input
+   7   | AEN      | Input
+   8   | RD       | Input
+   9   | WR       | Input
+  10   | A15      | Input
+  11   | LOCIOCS  | Input
+  12   | GND      | GND
+  13   | I10      | Input
+  14   | CSEPR    | Output
+  15   | DCFRDFF  | Output
+  16   | RESOUT   | Output
+  17   | LOCCFCS  | Output
+  18   | DCFWRFF  | Output
+  19   | CSRAM2   | Output
+  20   | CSRAM1   | Output
+  21   | DELCFWR  | Output
+  22   | LOCPTCS  | Output
+  23   | DELCFRD  | Output
+  24   | VCC      | VCC
+
