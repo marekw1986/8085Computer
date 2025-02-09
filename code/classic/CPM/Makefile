@@ -10,15 +10,18 @@ poloncpm.img : cpm22.bin
 	mkfs.cpm -f polon-2k-8m -b cpm22.bin poloncpm.img
 	cpmcp -f polon-2k-8m poloncpm.img ./filesystem/* 0:
 	cpmcp -f polon-2k-8m poloncpm.img ./adventure/adv-B03/* 0:
+	cpmcp -f polon-2k-8m poloncpm.img ./basic/* 0:
+	cpmcp -f polon-2k-8m poloncpm.img ./zork1/* 0:
+#	cpmcp -f polon-2k-8m poloncpm.img ./sargon/* 0:
 
 boot.p boot.lst: boot.asm
 	asl -o boot.p -L -OLIST boot.lst boot.asm -cpu 8080
 	
 ccp.p ccp.lst: ccp.asm
-	asl -D origin=5c00h -o ccp.p -L -OLIST ccp.lst ccp.asm -cpu 8080
+	asl -D origin=9c00h -o ccp.p -L -OLIST ccp.lst ccp.asm -cpu 8080
 
 bdos.p bdos.lst: bdos.asm
-	asl -D origin=6400h -o bdos.p -L -OLIST bdos.lst bdos.asm -cpu 8080
+	asl -D origin=0a406h -o bdos.p -L -OLIST bdos.lst bdos.asm -cpu 8080
 	
 bios.p bios.lst: bios.asm
 	asl -o bios.p -L -OLIST bios.lst bios.asm -cpu 8080

@@ -1,0 +1,6 @@
+Zakłócenia na liniach CS:
+CS_0, CS_1, CS_2 - praktycznie brak
+CS_3 - widoczny niski spike
+CS_4 - praktycznie brak
+CS_6 - praktycznie brak
+CS_5 - długie przejście w stan niski, w którego trakcie mamy chwilowy spike w górę. Korelacja z najsilniejszym spikiem z CS_3. Granice długiego przejścia korelują z mniejszumi spike'ami.

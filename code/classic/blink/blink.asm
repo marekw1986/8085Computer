@@ -9,7 +9,7 @@
 
 		INCL "../common/definitions.asm"
 		
-FULLSYS EQU 1
+FULLSYS EQU 0
 
         ORG  0C000H
         JMP  SET_PC
