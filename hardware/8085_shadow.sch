@@ -18593,6 +18593,10 @@ Source: &lt;a href="http://www.ti.com/lit/ds/symlink/sn74lvc1g79.pdf"&gt; Data s
 <wire x1="281.94" y1="58.42" x2="284.48" y2="58.42" width="0.1524" layer="91"/>
 <wire x1="284.48" y1="58.42" x2="284.48" y2="66.04" width="0.1524" layer="91"/>
 <label x="284.48" y="66.04" size="1.4224" layer="95" rot="R90" xref="yes"/>
+<pinref part="U$3" gate="G$1" pin="!P"/>
+<wire x1="281.94" y1="55.88" x2="284.48" y2="55.88" width="0.1524" layer="91"/>
+<wire x1="284.48" y1="55.88" x2="284.48" y2="58.42" width="0.1524" layer="91"/>
+<junction x="284.48" y="58.42"/>
 </segment>
 <segment>
 <pinref part="IC9" gate="P" pin="VCC"/>
@@ -19794,11 +19798,6 @@ Source: &lt;a href="http://www.ti.com/lit/ds/symlink/sn74lvc1g79.pdf"&gt; Data s
 <wire x1="160.02" y1="-35.56" x2="165.1" y2="-35.56" width="0.1524" layer="91"/>
 <label x="165.1" y="-35.56" size="1.4224" layer="95" xref="yes"/>
 <pinref part="SV2" gate="1" pin="29"/>
-</segment>
-<segment>
-<pinref part="U$3" gate="G$1" pin="!P"/>
-<wire x1="281.94" y1="55.88" x2="287.02" y2="55.88" width="0.1524" layer="91"/>
-<label x="287.02" y="55.88" size="1.4224" layer="95" xref="yes"/>
 </segment>
 <segment>
 <pinref part="IC5" gate="A" pin="A2"/>

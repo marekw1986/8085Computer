@@ -19094,6 +19094,10 @@ high speed (Philips)</description>
 <wire x1="281.94" y1="58.42" x2="284.48" y2="58.42" width="0.1524" layer="91"/>
 <wire x1="284.48" y1="58.42" x2="284.48" y2="66.04" width="0.1524" layer="91"/>
 <label x="284.48" y="66.04" size="1.4224" layer="95" rot="R90" xref="yes"/>
+<pinref part="U$3" gate="G$1" pin="!P"/>
+<wire x1="281.94" y1="55.88" x2="284.48" y2="55.88" width="0.1524" layer="91"/>
+<wire x1="284.48" y1="55.88" x2="284.48" y2="58.42" width="0.1524" layer="91"/>
+<junction x="284.48" y="58.42"/>
 </segment>
 <segment>
 <pinref part="IC9" gate="P" pin="VCC"/>
@@ -20346,11 +20350,6 @@ high speed (Philips)</description>
 <pinref part="SV2" gate="1" pin="29"/>
 </segment>
 <segment>
-<pinref part="U$3" gate="G$1" pin="!P"/>
-<wire x1="281.94" y1="55.88" x2="287.02" y2="55.88" width="0.1524" layer="91"/>
-<label x="287.02" y="55.88" size="1.4224" layer="95" xref="yes"/>
-</segment>
-<segment>
 <pinref part="IC5" gate="A" pin="A2"/>
 <wire x1="22.86" y1="233.68" x2="27.94" y2="233.68" width="0.1524" layer="91"/>
 <label x="27.94" y="233.68" size="1.4224" layer="95" xref="yes"/>
@@ -21047,6 +21046,7 @@ high speed (Philips)</description>
 <segment>
 <pinref part="IC8" gate="B" pin="D"/>
 <wire x1="45.72" y1="-198.12" x2="35.56" y2="-198.12" width="0.1524" layer="91"/>
+<label x="35.56" y="-198.12" size="1.4224" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="LOCAL_PORT_CS" class="0">
@@ -21346,6 +21346,7 @@ high speed (Philips)</description>
 <segment>
 <pinref part="IC8" gate="B" pin="CLK"/>
 <wire x1="45.72" y1="-203.2" x2="35.56" y2="-203.2" width="0.1524" layer="91"/>
+<label x="35.56" y="-203.2" size="1.4224" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="N$17" class="0">
@@ -21370,6 +21371,7 @@ high speed (Philips)</description>
 <segment>
 <pinref part="IC8" gate="B" pin="Q"/>
 <wire x1="71.12" y1="-195.58" x2="78.74" y2="-195.58" width="0.1524" layer="91"/>
+<label x="78.74" y="-195.58" size="1.4224" layer="95" xref="yes"/>
 </segment>
 <segment>
 <pinref part="IC9" gate="A" pin="G1"/>
