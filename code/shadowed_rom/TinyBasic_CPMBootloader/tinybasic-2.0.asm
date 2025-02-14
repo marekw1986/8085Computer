@@ -1571,6 +1571,10 @@ INIT:   STA  OCSW
         LXI  D, INPIO_ROM               ;SOURCE
         LXI  H, INPIO                   ;DESTINATION
         CALL MEMCOPY
+        LXI B, 32                       ;BYTES TO TRANSFER
+        LXI D, IR_VECTORS_ROM           ;SOURCE
+        LXI H, IR_VECTORS_RAM           ;DESTINATION
+        CALL MEMCOPY
 
         ; Wait before initializing CF card
 		MVI C, 255
@@ -1709,6 +1713,9 @@ BOOT_CPM:
 		DI
         CALL LOAD_PARTITION1
         CALL NEWLINE
+        ; Turn on ROM shadowing
+		MVI  A, 084H
+        OUT  PORT_74237
         JMP LOAD_BASE
         
 BOOT_TINY_BASIC:
@@ -1974,6 +1981,51 @@ EX5:    MOV  A,M                        ;LOAD HL WITH THE JUMP
         MOV  H,A
         POP  PSW                        ;CLEAN UP THE GABAGE
         PCHL                            ;AND WE GO DO IT
+        
+;Interrupt vectors defined in rom
+IR_VECTORS_ROM:
+IR0_VECT_ROM:
+		JMP KBD_ISR
+        NOP
+        ;EI
+        ;RET
+        ;NOP
+        ;NOP        
+IR1_VECT_ROM:
+		;JMP UART_TX_ISR
+        ;NOP
+        EI
+        RET
+        NOP
+        NOP
+IR2_VECT_ROM:
+		;JMP UART_RX_ISR
+        ;NOP
+        EI
+        RET
+        NOP
+        NOP
+IR3_VECT_ROM:
+		JMP RTC_ISR
+        NOP
+IR4_VECT_ROM:
+		JMP TIMER_ISR
+        NOP
+IR5_VECT_ROM:
+        EI	
+        RET
+        NOP
+        NOP
+IR6_VECT_ROM:
+        EI	
+        RET
+        NOP
+        NOP
+IR7_VECT_ROM:
+        EI	
+        RET
+        NOP
+        NOP
 
 ;Interrupt routines
 UART_RX_ISR:
@@ -2046,32 +2098,31 @@ RTC_ISR:
 
 ;Interrupt vectors
 		ORG  0FFE0H
+IR_VECTORS_RAM
 IR0_VECT:
-		JMP KBD_ISR
+        EI
+        RET
         NOP
-        ;EI
-        ;RET
-        ;NOP
-        ;NOP        
+        NOP        
 IR1_VECT:
-		;JMP UART_TX_ISR
-        ;NOP
         EI
         RET
         NOP
         NOP
 IR2_VECT:
-		;JMP UART_RX_ISR
-        ;NOP
         EI
         RET
         NOP
         NOP
 IR3_VECT:
-		JMP RTC_ISR
+        EI
+        RET
+        NOP
         NOP
 IR4_VECT:
-		JMP TIMER_ISR
+        EI
+        RET
+        NOP
         NOP
 IR5_VECT:
         EI	
@@ -2111,7 +2162,7 @@ TXTUNF: DS   2                          ;->UNFILLED TEXT AREA
 TXTBGN: DS   2                          ;TEXT SAVE AREA BEGINS
 ;       ORG  1366H
 ;       ORG  1F00H
-		ORG	 0C000H
+		ORG	 0EBFFH
 TXTEND: DS   0                          ;TEXT SAVE AREA ENDS
 VARBGN: DS   55                         ;VARIABLE @(0)
 BUFFER: DS   64                         ;INPUT BUFFER
@@ -2133,7 +2184,7 @@ KBDNEW	DS	 1							;Keyboard new data
 STKLMT: DS   1                          ;TOP LIMIT FOR STACK
 
 ;       ORG  1400H
-        ORG  0EFFFH
+        ORG  0EFDFH
 STACK:  DS   0                          ;STACK STARTS HERE
 ;
 
