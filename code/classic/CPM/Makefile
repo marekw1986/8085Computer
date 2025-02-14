@@ -14,6 +14,11 @@ poloncpm.img : cpm22.bin
 	cpmcp -f polon-2k-8m poloncpm.img ./zork1/* 0:
 #	cpmcp -f polon-2k-8m poloncpm.img ./sargon/* 0:
 
+prepare_files: 
+	git clone https://github.com/Z80-Retro/cpm-2.2.git
+	mv ./cpm-2.2/filesystem ./
+	rm -rf ./cpm-2.2
+
 boot.p boot.lst: boot.asm
 	asl -o boot.p -L -OLIST boot.lst boot.asm -cpu 8080
 	
@@ -39,3 +44,4 @@ cpm22.bin: boot.p ccp.p bdos.p bios.p
 
 clean:
 	rm -f *.p *.bin *.lst *.img
+	rm -rf ./cpm-2.2
