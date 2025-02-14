@@ -8,7 +8,7 @@ IOBYTE	EQU 0003H
 
 ; WARNING: The following assumes that CPM_BASE%128 = 0
 WB_NSECTS	EQU		(BIOS_BOOT-CCP)/128					; number of sectors to load
-WB_TRK		EQU		CCP/512								; first track number (rounded down)
+WB_TRK		EQU		0									; first track now at beginning of partition now
 WB_SEC		EQU		(CCP/128)&03H						; first sector number
 
 DEBUG	EQU 0
@@ -842,7 +842,7 @@ DISKA_DPB:
 				DB	0FFH		; AL0
 				DB	00H			; AL1
 				DW	0000H		; CKS
-				DW	005FH		; OFF
+				DW	0011H		; OFF
 				
 DISKA_ALV:
 				DS	(4065/8)+1

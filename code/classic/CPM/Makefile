@@ -19,8 +19,8 @@ prepare_files:
 	mv ./cpm-2.2/filesystem ./
 	rm -rf ./cpm-2.2
 
-boot.p boot.lst: boot.asm
-	asl -o boot.p -L -OLIST boot.lst boot.asm -cpu 8080
+#boot.p boot.lst: boot.asm
+#	asl -o boot.p -L -OLIST boot.lst boot.asm -cpu 8080
 	
 ccp.asm bdos.asm:
 	git clone https://github.com/brouhaha/cpm22.git
@@ -39,8 +39,8 @@ bdos.p bdos.lst: bdos.asm
 bios.p bios.lst: bios.asm
 	asl -o bios.p -L -OLIST bios.lst bios.asm -cpu 8080
 	
-cpm22.bin: boot.p ccp.p bdos.p bios.p
-	p2bin -l '$$00' boot.p ccp.p bdos.p bios.p cpm22.bin
+cpm22.bin: ccp.p bdos.p bios.p
+	p2bin -l '$$00' ccp.p bdos.p bios.p cpm22.bin
 
 clean:
 	rm -f *.p *.bin *.lst *.img
