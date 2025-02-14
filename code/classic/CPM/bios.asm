@@ -45,6 +45,18 @@ BIOS_BOOT_PROC:
 		DI
 		LXI  H, BIOS_STACK
 		SPHL
+        
+        XRA A
+        LXI H, 0000H
+        LXI B, 9C00H
+ZERO_LOOP:
+        MVI A, 00H
+        MOV M, A
+        INX H
+        DCX B
+        MOV A, B
+        ORA C
+        JNZ ZERO_LOOP
 	IF DEBUG > 0
 	    PUSH PSW
         PUSH B

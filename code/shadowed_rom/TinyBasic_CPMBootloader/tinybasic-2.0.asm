@@ -1716,7 +1716,7 @@ BOOT_CPM:
         ; Turn on ROM shadowing
 		MVI  A, 084H
         OUT  PORT_74237
-        JMP LOAD_BASE
+        JMP BIOS_ADDR
         
 BOOT_TINY_BASIC:
 		MVI D, 02H
