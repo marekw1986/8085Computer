@@ -24,6 +24,9 @@
 ; SECTION.  THEY CAN BE REACHED ONLY BY 3-BYTE CALLS.
 ;
 
+IR_VECTORS_RAM EQU 0FFE0H
+STACK          EQU IR_VECTORS_RAM-1
+
 		INCL "../common/definitions.asm"
 
         ORG  0000H
@@ -1713,9 +1716,6 @@ BOOT_CPM:
 		DI
         CALL LOAD_PARTITION1
         CALL NEWLINE
-        ; Turn on ROM shadowing
-		MVI  A, 084H
-        OUT  PORT_74237
         JMP BIOS_ADDR
         
 BOOT_TINY_BASIC:
@@ -1977,7 +1977,7 @@ EX4:    INX  H                          ;JUMP ADDR., WHICH IS
 EX5:    MOV  A,M                        ;LOAD HL WITH THE JUMP
         INX  H                          ;ADDRESS FROM THE TABLE
         MOV  L,M
-;        ANI  7FH                        ;MASK OFF BIT 7
+        ANI  7FH                        ;MASK OFF BIT 7
         MOV  H,A
         POP  PSW                        ;CLEAN UP THE GABAGE
         PCHL                            ;AND WE GO DO IT
@@ -2096,49 +2096,6 @@ RTC_ISR:
         EI                              ;Re-enable interrupts
 		RET								;Return to interrupted program
 
-;Interrupt vectors
-		ORG  0FFE0H
-IR_VECTORS_RAM
-IR0_VECT:
-        EI
-        RET
-        NOP
-        NOP        
-IR1_VECT:
-        EI
-        RET
-        NOP
-        NOP
-IR2_VECT:
-        EI
-        RET
-        NOP
-        NOP
-IR3_VECT:
-        EI
-        RET
-        NOP
-        NOP
-IR4_VECT:
-        EI
-        RET
-        NOP
-        NOP
-IR5_VECT:
-        EI	
-        RET
-        NOP
-        NOP
-IR6_VECT:
-        EI	
-        RET
-        NOP
-        NOP
-IR7_VECT
-        EI	
-        RET
-        NOP
-        NOP
 ;
 LSTROM:                                 ;ALL ABOVE CAN BE ROM
 ;       ORG  1000H                      ;HERE DOWN MUST BE RAM
@@ -2162,7 +2119,7 @@ TXTUNF: DS   2                          ;->UNFILLED TEXT AREA
 TXTBGN: DS   2                          ;TEXT SAVE AREA BEGINS
 ;       ORG  1366H
 ;       ORG  1F00H
-		ORG	 0EBFFH
+		ORG	 0FBDFH
 TXTEND: DS   0                          ;TEXT SAVE AREA ENDS
 VARBGN: DS   55                         ;VARIABLE @(0)
 BUFFER: DS   64                         ;INPUT BUFFER
@@ -2182,11 +2139,6 @@ KBDSFFL DS	 1							;Keyboard Shift flag
 KBDOLD	DS	 1							;Keyboard old data
 KBDNEW	DS	 1							;Keyboard new data
 STKLMT: DS   1                          ;TOP LIMIT FOR STACK
-
-;       ORG  1400H
-        ORG  0EFDFH
-STACK:  DS   0                          ;STACK STARTS HERE
-;
 
 CR      EQU  0DH
 LF      EQU  0AH
