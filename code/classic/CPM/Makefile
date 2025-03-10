@@ -9,7 +9,7 @@ poloncpm.img : cpm22.bin
 	rm -f poloncpm.img
 	mkfs.cpm -f polon-2k-8m -b cpm22.bin poloncpm.img
 	cpmcp -f polon-2k-8m poloncpm.img ./filesystem/* 0:
-	cpmcp -f polon-2k-8m poloncpm.img ./adventure/adv-B03/* 0:
+	cpmcp -f polon-2k-8m poloncpm.img ./adventure/adv-B00/* 0:
 	cpmcp -f polon-2k-8m poloncpm.img ./basic/* 0:
 	cpmcp -f polon-2k-8m poloncpm.img ./zork1/* 0:
 #	cpmcp -f polon-2k-8m poloncpm.img ./sargon/* 0:

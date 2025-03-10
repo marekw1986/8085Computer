@@ -456,59 +456,20 @@ BIOS_READ_PROC:
 		POP H							; Restore original content of HL
 		MVI A, 1						; Report error					
 		RET								; Return
-BIOS_READ_PROC_GET_SECT
-		LDA DISK_SECTOR
-		
-		MOV E, A
-		MVI D, 0
-		
-		ADD E
-		MOV E, A
-		MOV A, D
-		ADC D
-		MOV D, A
-		
-		MOV A, E
-		ADD E
-		MOV E, A
-		MOV A, D
-		ADC D
-		MOV D, A
-		
-		MOV A, E
-		ADD E
-		MOV E, A
-		MOV A, D
-		ADC D
-		MOV D, A
-		
-		MOV A, E
-		ADD E
-		MOV E, A
-		MOV A, D
-		ADC D
-		MOV D, A
-		
-		MOV A, E
-		ADD E
-		MOV E, A
-		MOV A, D
-		ADC D
-		MOV D, A
-		
-		MOV A, E
-		ADD E
-		MOV E, A
-		MOV A, D
-		ADC D
-		MOV D, A
-		
-		MOV A, E
-		ADD E
-		MOV E, A
-		MOV A, D
-		ADC D
-		MOV D, A
+BIOS_READ_PROC_GET_SECT:
+        LDA DISK_SECTOR  ; Load sector number
+        MOV E, A         ; Store in E (low byte)
+        MVI D, 0         ; Clear D (high byte)
+        MVI B, 7         ; Loop counter (7 shifts)
+SHIFT_LOOP:
+        MOV A, E  
+        ADD A   ; Shift E left (×2)
+        MOV E, A  
+        MOV A, D  
+        ADC A   ; Shift D left with carry
+        MOV D, A  
+        DCR B   ; Decrement counter
+        JNZ SHIFT_LOOP  ; Repeat until done
 
 		; Now DE contains the 16-bit result of multiplying the original value by 128
 		; D holds the high byte and E holds the low byte of the result
