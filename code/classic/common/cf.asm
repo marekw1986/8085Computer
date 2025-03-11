@@ -176,6 +176,10 @@ CFRSECT_PERFORM:
 		POP PSW 
 		RET
 CFRSECT_BAD:
+        PUSH PSW
+        MVI A, 00H
+        STA CFVAL
+        POP PSW
 		RET
 		
 CFR32SECTORS:
@@ -197,10 +201,34 @@ CFWSECT:
         CALL CFWAIT
         MVI A, 30H                      ;WRITE SECTOR COMMAND
         OUT CFREG7
-        LXI D, LOAD_BASE
+        LXI D, BLKDAT
         CALL CFWRITE
         CALL CFCHERR
-        RET
+        CPI 00H                         ; Check if write OK
+        JNZ CFWSECT_BAD
+		PUSH PSW
+		PUSH H
+		PUSH D
+		PUSH B
+		MVI A, 01H
+		STA CFVAL
+		; copy CFLBAx toPCFLBAx
+		LXI D, CFLBA3
+		LXI H, PCFLBA3
+		MVI B, 4
+		CALL MEMCOPY
+		POP B
+		POP D
+		POP H
+		POP PSW 
+		RET
+CFWSECT_BAD:
+        PUSH PSW
+        MVI A, 00H
+        STA CFVAL
+        POP PSW
+		RET
+        
 
 PRN_PARTITION_TABLE:
         ;Print partition info
