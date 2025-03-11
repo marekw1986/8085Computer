@@ -212,7 +212,7 @@ CFWSECT:
 		PUSH B
 		MVI A, 01H
 		STA CFVAL
-		; copy CFLBAx toPCFLBAx
+		; copy CFLBAx to PCFLBAx
 		LXI D, CFLBA3
 		LXI H, PCFLBA3
 		MVI B, 4
