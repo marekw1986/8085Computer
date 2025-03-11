@@ -457,20 +457,7 @@ BIOS_READ_PROC:
 		MVI A, 1						; Report error					
 		RET								; Return
 BIOS_READ_PROC_GET_SECT:
-        LDA DISK_SECTOR  ; Load sector number
-        MOV E, A         ; Store in E (low byte)
-        MVI D, 0         ; Clear D (high byte)
-        MVI B, 7         ; Loop counter (7 shifts)
-SHIFT_LOOP:
-        MOV A, E  
-        ADD A   ; Shift E left (×2)
-        MOV E, A  
-        MOV A, D  
-        ADC A   ; Shift D left with carry
-        MOV D, A  
-        DCR B   ; Decrement counter
-        JNZ SHIFT_LOOP  ; Repeat until done
-
+        CALL BIOS_CALC_SECT_IN_BUFFER
 		; Now DE contains the 16-bit result of multiplying the original value by 128
 		; D holds the high byte and E holds the low byte of the result
 		; Calculate the address of the CP/M sector in the BLKDAT
@@ -570,20 +557,7 @@ BIOS_WRITE_PROC:
 		CALL CFRSECT
 		CPI 00H
 		JNZ BIOS_WRITE_RET_ERR			; If we ae unable to read sector, it ends here. We would risk FS crash otherwise.
-BIOS_WRITE_PROC_GET_SECT:
-        LDA DISK_SECTOR  ; Load sector number
-        MOV E, A         ; Store in E (low byte)
-        MVI D, 0         ; Clear D (high byte)
-        MVI B, 7         ; Loop counter (7 shifts)
-WRITE_SHIFT_LOOP:
-        MOV A, E  
-        ADD A   ; Shift E left (×2)
-        MOV E, A  
-        MOV A, D  
-        ADC A   ; Shift D left with carry
-        MOV D, A  
-        DCR B   ; Decrement counter
-        JNZ WRITE_SHIFT_LOOP  ; Repeat until done		
+		CALL BIOS_CALC_SECT_IN_BUFFER
 		; Now DE contains the 16-bit result of multiplying the original value by 128
 		; D holds the high byte and E holds the low byte of the result
 		; Calculate the address of the CP/M sector in the BLKDAT
@@ -742,7 +716,22 @@ BIOS_KBDCRTLSET:
         STA KBDNEW					;Zero new data
         MVI B, 00H					;Return result code
         RET
-		
+
+BIOS_CALC_SECT_IN_BUFFER:
+        LDA DISK_SECTOR  ; Load sector number
+        MOV E, A         ; Store in E (low byte)
+        MVI D, 0         ; Clear D (high byte)
+        MVI B, 7         ; Loop counter (7 shifts)
+CALC_SECTOR_SHIFT_LOOP:
+        MOV A, E  
+        ADD A   ; Shift E left (×2)
+        MOV E, A  
+        MOV A, D  
+        ADC A   ; Shift D left with carry
+        MOV D, A  
+        DCR B   ; Decrement counter
+        JNZ CALC_SECTOR_SHIFT_LOOP  ; Repeat until done		
+		RET
 		
 	IF DEBUG > 0
 PRINT_DISK_DEBUG
