@@ -448,8 +448,6 @@ BIOS_READ_PROC:
 		; If no error there should be 0 in A
 		CPI 00H
 		JZ BIOS_READ_PROC_GET_SECT		; No error, just read sector. Otherwise report error and return.
-		MVI A, 00H
-        STA CFVAL
 		POP D							; Restore registers
 		POP B
 		LHLD ORIGINAL_SP				; Restore original stack
@@ -498,13 +496,6 @@ BIOS_READ_PROC_GET_SECT:
 		; Source addres in DE
 		LHLD DISK_DMA	; Load target address to HL
 		LXI B, 0080H	; How many bytes?
-		CALL MEMCOPY
-		MVI A, 01H
-		STA CFVAL
-		; copy CFLBAx toPCFLBAx
-		LXI D, CFLBA3
-		LXI H, PCFLBA3
-		MVI B, 4
 		CALL MEMCOPY
 	IF 0 ;DEBUG > 0
 		PUSH D
