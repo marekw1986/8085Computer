@@ -597,14 +597,24 @@ BIOS_WRITE_PROC:
 		LXI B, 0080H	; How many bytes to copy?
 		CALL MEMCOPY
 		; Buffer is updated with new sector data. Perform write.
+		LXI D, BLKDAT
 		CALL CFWSECT
 		CPI 00H			; Check result
 		JNZ BIOS_WRITE_RET_ERR
 		JMP BIOS_WRITE_RET_OK				
 BIOS_WRITE_RET_ERR:
+        MVI A, 00H
+        STA CFVAL
 		MVI A, 1
 		JMP BIOS_WRITE_RET
 BIOS_WRITE_RET_OK:
+		MVI A, 01H
+		STA CFVAL
+		; copy CFLBAx to PCFLBAx
+		LXI D, CFLBA3
+		LXI H, PCFLBA3
+		MVI B, 4
+		CALL MEMCOPY
 		MVI A, 0
 BIOS_WRITE_RET:
 		POP D
@@ -612,7 +622,6 @@ BIOS_WRITE_RET:
 		LHLD ORIGINAL_SP; Restore original stack
 		SPHL
 		POP H			; Restore original content of HL
-		MVI A, 1	; <--- Stub error in every write
 		RET
 		 
 BIOS_PRSTAT_PROC:
