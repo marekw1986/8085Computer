@@ -443,11 +443,9 @@ BIOS_READ_PROC:
 		CPI 00H							; If not, new LBA. Read imediately
 		JZ BIOS_READ_PERFORM
 		; We already have valid data in buffer. No need to read it again
-		JMP BIOS_READ_PROCESS_DATA
+		JMP BIOS_READ_PROC_GET_SECT
 BIOS_READ_PERFORM:
-		LXI D, BLKDAT
-		CALL CFRSECT
-BIOS_READ_PROCESS_DATA:
+		CALL CFRSECT_WITH_CACHE
 	IF DEBUG > 1
         PUSH PSW
         PUSH B
@@ -576,7 +574,7 @@ BIOS_WRITE_PROC:
 		STA CFLBA2
 		STA CFLBA3
 		; First read sector to have complete data in buffer
-		CALL CFRSECT
+		CALL CFRSECT_WITH_CACHE
 		CPI 00H
 		JNZ BIOS_WRITE_RET_ERR			; If we ae unable to read sector, it ends here. We would risk FS crash otherwise.
 		CALL BIOS_CALC_SECT_IN_BUFFER
