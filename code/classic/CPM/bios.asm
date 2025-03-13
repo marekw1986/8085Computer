@@ -433,18 +433,6 @@ BIOS_READ_PROC:
 		MVI A, 0
 		STA CFLBA2
 		STA CFLBA3
-
-		LDA CFVAL						; Check if we have valid data in buffer
-		CPI 00H
-		JZ	BIOS_READ_PERFORM 			; If not, read
-		LXI H, CFLBA3					; Check if old and new LBA values are equal
-		LXI D, PCFLBA3
-		CALL IS32BIT_EQUAL
-		CPI 00H							; If not, new LBA. Read imediately
-		JZ BIOS_READ_PERFORM
-		; We already have valid data in buffer. No need to read it again
-		JMP BIOS_READ_PROC_GET_SECT
-BIOS_READ_PERFORM:
 		CALL CFRSECT_WITH_CACHE
 	IF DEBUG > 1
         PUSH PSW
