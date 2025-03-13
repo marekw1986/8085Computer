@@ -573,6 +573,10 @@ BIOS_WRITE_PROC:
 		MVI A, 0
 		STA CFLBA2
 		STA CFLBA3
+        ; Check content of C - deblocking code
+        MOV A, C
+        CPI 2               ; Is it first sector of new track?
+        JZ BIOS_WRITE_NEW_TRACK
 		; First read sector to have complete data in buffer
 		CALL CFRSECT_WITH_CACHE
 		CPI 00H
@@ -588,6 +592,24 @@ BIOS_WRITE_PROC:
 		MOV A, D
 		ADC H
 		MOV D, A
+        JMP BIOS_WRITE_PERFORM
+        ; No need to calculate sector location in BLKDAT.
+        ; Thanks to deblocking code = 2 we know it is first secor of new track
+        ; Just fill remaining bytes of buffer with 0xE5 and copy secotr to the
+        ; beginning of BLKDAT. Then write.
+BIOS_WRITE_NEW_TRACK
+        LXI H, BLKDAT+128
+        LXI B, 384
+BIOS_WRITE_E5_FILL_LOOP:
+        MVI A, 0E5H
+        MOV M, A
+        INX H
+        DCX B
+        MOV A, B
+        ORA C
+        JNZ BIOS_WRITE_E5_FILL_LOOP
+        LXI D, BLKDAT
+BIOS_WRITE_PERFORM:
 		; Addres of sector in BLKDAT is now in DE
 		LHLD DISK_DMA	; Load source address to HL
 		; Replace HL and DE. HL will now contain address od sector in BLKDAT and DE will store source from DISK_DMA
