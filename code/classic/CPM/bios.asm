@@ -433,8 +433,21 @@ BIOS_READ_PROC:
 		MVI A, 0
 		STA CFLBA2
 		STA CFLBA3
+
+		LDA CFVAL						; Check if we have valid data in buffer
+		CPI 00H
+		JZ	BIOS_READ_PERFORM 			; If not, read
+		LXI H, CFLBA3					; Check if old and new LBA values are equal
+		LXI D, PCFLBA3
+		CALL IS32BIT_EQUAL
+		CPI 00H							; If not, new LBA. Read imediately
+		JZ BIOS_READ_PERFORM
+		; We already have valid data in buffer. No need to read it again
+		JMP BIOS_READ_PROCESS_DATA
+BIOS_READ_PERFORM:
 		LXI D, BLKDAT
 		CALL CFRSECT
+BIOS_READ_PROCESS_DATA:
 	IF DEBUG > 1
         PUSH PSW
         PUSH B
@@ -448,8 +461,10 @@ BIOS_READ_PROC:
 	ENDIF
 		; If no error there should be 0 in A
 		CPI 00H
-		JZ BIOS_READ_PROC_GET_SECT		; No error, just read sector
-		POP D							; Otherwise report error and return - first restore registers
+		JZ BIOS_READ_PROC_GET_SECT		; No error, just read sector. Otherwise report error and return.
+		MVI A, 00H
+        STA CFVAL
+		POP D							; Restore registers
 		POP B
 		LHLD ORIGINAL_SP				; Restore original stack
 		SPHL
@@ -497,6 +512,13 @@ BIOS_READ_PROC_GET_SECT:
 		; Source addres in DE
 		LHLD DISK_DMA	; Load target address to HL
 		LXI B, 0080H	; How many bytes?
+		CALL MEMCOPY
+		MVI A, 01H
+		STA CFVAL
+		; copy CFLBAx toPCFLBAx
+		LXI D, CFLBA3
+		LXI H, PCFLBA3
+		MVI B, 4
 		CALL MEMCOPY
 	IF 0 ;DEBUG > 0
 		PUSH D
