@@ -1,4 +1,5 @@
-        include "labels.asm"
+        include "variables.asm"
+
 CCP		EQU	0DC00H   ; was 2200H
 BDOS	EQU CCP+806H
 BIOS	EQU CCP+1600H
@@ -62,6 +63,17 @@ ZERO_LOOP:
         MOV A, B
         ORA C
         JNZ ZERO_LOOP
+CFVAR_INIT:
+		MVI A, 00H
+		STA	CFLBA3
+		STA	CFLBA2
+		STA	CFLBA1
+		STA	CFLBA0
+		STA PCFLBA3
+		STA PCFLBA2
+		STA PCFLBA1
+		STA PCFLBA0
+		STA CFVAL
 	IF DEBUG > 0
 	    PUSH PSW
         PUSH B
@@ -438,7 +450,7 @@ BIOS_READ_PROC:
 		MVI A, 0
 		STA CFLBA2
 		STA CFLBA3
-		LXI D, BLKDAT
+        LXI D, BLKDAT
 		CALL CFRSECT
 	IF DEBUG > 1
         PUSH PSW
@@ -453,68 +465,16 @@ BIOS_READ_PROC:
 	ENDIF
 		; If no error there should be 0 in A
 		CPI 00H
-		JZ BIOS_READ_PROC_GET_SECT		; No error, just read sector
-		POP D							; Otherwise report error and return - first restore registers
+		JZ BIOS_READ_PROC_GET_SECT		; No error, just read sector. Otherwise report error and return.
+		POP D							; Restore registers
 		POP B
 		LHLD ORIGINAL_SP				; Restore original stack
 		SPHL
 		POP H							; Restore original content of HL
 		MVI A, 1						; Report error					
 		RET								; Return
-BIOS_READ_PROC_GET_SECT
-		LDA DISK_SECTOR
-		
-		MOV E, A
-		MVI D, 0
-		
-		ADD E
-		MOV E, A
-		MOV A, D
-		ADC D
-		MOV D, A
-		
-		MOV A, E
-		ADD E
-		MOV E, A
-		MOV A, D
-		ADC D
-		MOV D, A
-		
-		MOV A, E
-		ADD E
-		MOV E, A
-		MOV A, D
-		ADC D
-		MOV D, A
-		
-		MOV A, E
-		ADD E
-		MOV E, A
-		MOV A, D
-		ADC D
-		MOV D, A
-		
-		MOV A, E
-		ADD E
-		MOV E, A
-		MOV A, D
-		ADC D
-		MOV D, A
-		
-		MOV A, E
-		ADD E
-		MOV E, A
-		MOV A, D
-		ADC D
-		MOV D, A
-		
-		MOV A, E
-		ADD E
-		MOV E, A
-		MOV A, D
-		ADC D
-		MOV D, A
-
+BIOS_READ_PROC_GET_SECT:
+        CALL BIOS_CALC_SECT_IN_BUFFER
 		; Now DE contains the 16-bit result of multiplying the original value by 128
 		; D holds the high byte and E holds the low byte of the result
 		; Calculate the address of the CP/M sector in the BLKDAT
@@ -599,11 +559,62 @@ BIOS_WRITE_PROC:
 		POP B
 		POP PSW
 	ENDIF
-	
+		PUSH B				; Now save remaining registers
+		PUSH D
+		LDA DISK_TRACK
+		ADI 00H				;This is temp, TODO: remove hardwired addres of partition
+		STA CFLBA0
+		LDA DISK_TRACK+1
+		ACI 08H
+		STA CFLBA1
+		MVI A, 0
+		STA CFLBA2
+		STA CFLBA3
+		; First read sector to have complete data in buffer
+        LXI D, BLKDAT
+		CALL CFRSECT
+		CPI 00H
+		JNZ BIOS_WRITE_RET_ERR			; If we ae unable to read sector, it ends here. We would risk FS crash otherwise.
+		CALL BIOS_CALC_SECT_IN_BUFFER
+		; Now DE contains the 16-bit result of multiplying the original value by 128
+		; D holds the high byte and E holds the low byte of the result
+		; Calculate the address of the CP/M sector in the BLKDAT
+		LXI H, BLKDAT
+		MOV A, E
+		ADD L
+		MOV E, A
+		MOV A, D
+		ADC H
+		MOV D, A
+        JMP BIOS_WRITE_PERFORM
+        ; No need to calculate sector location in BLKDAT.
+        ; Thanks to deblocking code = 2 we know it is first secor of new track
+        ; Just fill remaining bytes of buffer with 0xE5 and copy secotr to the
+        ; beginning of BLKDAT. Then write.
+BIOS_WRITE_PERFORM:
+		; Addres of sector in BLKDAT is now in DE
+		LHLD DISK_DMA	; Load source address to HL
+		; Replace HL and DE. HL will now contain address od sector in BLKDAT and DE will store source from DISK_DMA
+		XCHG
+		LXI B, 0080H	; How many bytes to copy?
+		CALL MEMCOPY
+		; Buffer is updated with new sector data. Perform write.
+		LXI D, BLKDAT
+		CALL CFWSECT
+		CPI 00H			; Check result
+		JNZ BIOS_WRITE_RET_ERR
+		JMP BIOS_WRITE_RET_OK				
+BIOS_WRITE_RET_ERR:
+		MVI A, 1
+		JMP BIOS_WRITE_RET
+BIOS_WRITE_RET_OK:
+		MVI A, 0
+BIOS_WRITE_RET:
+		POP D
+		POP B	
 		LHLD ORIGINAL_SP; Restore original stack
 		SPHL
 		POP H			; Restore original content of HL
-		MVI A, 1	; <--- Stub error in every write
 		RET
 		 
 BIOS_PRSTAT_PROC:
@@ -729,7 +740,22 @@ BIOS_SECTRN_PROC:
 ;        STA KBDNEW					;Zero new data
 ;        MVI B, 00H					;Return result code
 ;        RET
-		
+
+BIOS_CALC_SECT_IN_BUFFER:
+        LDA DISK_SECTOR  ; Load sector number
+        MOV E, A         ; Store in E (low byte)
+        MVI D, 0         ; Clear D (high byte)
+        MVI B, 7         ; Loop counter (7 shifts)
+CALC_SECTOR_SHIFT_LOOP:
+        MOV A, E  
+        ADD A   ; Shift E left (×2)
+        MOV E, A  
+        MOV A, D  
+        ADC A   ; Shift D left with carry
+        MOV D, A  
+        DCR B   ; Decrement counter
+        JNZ CALC_SECTOR_SHIFT_LOOP  ; Repeat until done		
+		RET		
 		
 	IF DEBUG > 0
 PRINT_DISK_DEBUG
@@ -804,12 +830,11 @@ PRINT_COLON:
 		DB 00H
 		RET
 	ENDIF
-    
-        include "variables.asm"
+
+        include "cf.asm"
+        include "utils.asm"
         include "../common/definitions.asm"
-        include "../common/utils.asm"
         include "../common/hexdump.asm"
-        include "../common/cf.asm"
 	
 LAST_CHAR		DB	00H		; Last ASCII character from keyboard	
 DISK_DISK:		DB	00H		; Should it be here?
@@ -887,7 +912,3 @@ BIOS_STACK
 		error "Bios overwritten system variables!"
 	ENDIF
 		END
-		
-		
-;        ORG  7FFFH
-;STACK:  DS   0                          ;STACK STARTS HERE
