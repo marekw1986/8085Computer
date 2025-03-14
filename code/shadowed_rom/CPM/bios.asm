@@ -63,6 +63,8 @@ ZERO_LOOP:
         MOV A, B
         ORA C
         JNZ ZERO_LOOP
+        CALL CFGETMBR
+        CALL CFLDPARTADDR
 CFVAR_INIT:
 		MVI A, 00H
 		STA	CFLBA3
@@ -325,36 +327,15 @@ BIOS_SETTRK_PROC:
 		RET
 		  
 BIOS_SELDSK_PROC:
-		PUSH PSW
 		MOV A, C
-		STA DISK_DISK
-		POP PSW
-		;LXI H, 0
-		LXI H, DISKA_DPH
-	IF DEBUG > 1
-		PUSH H				; Save content  of HL on original stack, then switch to bios stack
-		LXI H, 0000H
-		DAD SP	; HL = HL + SP
-		SHLD ORIGINAL_SP
-		LXI H, BIOS_STACK
-		SPHL	
-        PUSH PSW
-        PUSH B
-		PUSH D
-		PUSH H
-		CALL IPUTS
-		DB 'SELDSK procedure entered: '
-		DB 00H
-		CALL PRINT_DISK_DEBUG
-		POP H
-		POP D
-		POP B
-		POP PSW
-		LHLD ORIGINAL_SP; Restore original stack
-		SPHL
-		POP H			; Restore original content of HL
-	ENDIF		
+        CPI 04H     ; Only four partitions supported
+        JNC BIOS_SELDSK_PROC_WRNDSK
+        STA DISK_DISK
+		LXI H, DISKA_DPH	
 		RET
+BIOS_SELDSK_PROC_WRNDSK:
+        LXI H, 0
+        RET
 		
 BIOS_SETSEC_PROC:
 		PUSH H
@@ -441,18 +422,9 @@ BIOS_READ_PROC:
 	ENDIF
 		PUSH B				; Now save remaining registers
 		PUSH D
-		LDA DISK_TRACK
-		ADI 00H				;This is temp, TODO: remove hardwired addres of partition
-		STA CFLBA0
-		LDA DISK_TRACK+1
-		ACI 08H
-		STA CFLBA1
-		MVI A, 0
-		STA CFLBA2
-		STA CFLBA3
-        LXI D, BLKDAT
-		CALL CFRSECT
-	IF DEBUG > 1
+        CALL CALC_CFLBA_FROM_PART_ADR
+		CALL CFRSECT_WITH_CACHE
+	IF DEBUG > 0
         PUSH PSW
         PUSH B
 		PUSH D
@@ -561,18 +533,12 @@ BIOS_WRITE_PROC:
 	ENDIF
 		PUSH B				; Now save remaining registers
 		PUSH D
-		LDA DISK_TRACK
-		ADI 00H				;This is temp, TODO: remove hardwired addres of partition
-		STA CFLBA0
-		LDA DISK_TRACK+1
-		ACI 08H
-		STA CFLBA1
-		MVI A, 0
-		STA CFLBA2
-		STA CFLBA3
+        ; Check content of C - deblocking code
+        MOV A, C
+        CPI 2               ; Is it first sector of new track?
+        JZ BIOS_WRITE_NEW_TRACK
 		; First read sector to have complete data in buffer
-        LXI D, BLKDAT
-		CALL CFRSECT
+		CALL CFRSECT_WITH_CACHE
 		CPI 00H
 		JNZ BIOS_WRITE_RET_ERR			; If we ae unable to read sector, it ends here. We would risk FS crash otherwise.
 		CALL BIOS_CALC_SECT_IN_BUFFER
@@ -591,6 +557,18 @@ BIOS_WRITE_PROC:
         ; Thanks to deblocking code = 2 we know it is first secor of new track
         ; Just fill remaining bytes of buffer with 0xE5 and copy secotr to the
         ; beginning of BLKDAT. Then write.
+BIOS_WRITE_NEW_TRACK
+        LXI H, BLKDAT+128
+        LXI B, 384
+BIOS_WRITE_E5_FILL_LOOP:
+        MVI A, 0E5H
+        MOV M, A
+        INX H
+        DCX B
+        MOV A, B
+        ORA C
+        JNZ BIOS_WRITE_E5_FILL_LOOP
+        LXI D, BLKDAT
 BIOS_WRITE_PERFORM:
 		; Addres of sector in BLKDAT is now in DE
 		LHLD DISK_DMA	; Load source address to HL
@@ -599,15 +577,21 @@ BIOS_WRITE_PERFORM:
 		LXI B, 0080H	; How many bytes to copy?
 		CALL MEMCOPY
 		; Buffer is updated with new sector data. Perform write.
+        CALL CALC_CFLBA_FROM_PART_ADR
 		LXI D, BLKDAT
 		CALL CFWSECT
 		CPI 00H			; Check result
 		JNZ BIOS_WRITE_RET_ERR
 		JMP BIOS_WRITE_RET_OK				
 BIOS_WRITE_RET_ERR:
+        MVI A, 00H
+        STA CFVAL
 		MVI A, 1
 		JMP BIOS_WRITE_RET
 BIOS_WRITE_RET_OK:
+        MVI A, 01H
+        STA CFVAL
+        CALL CFUPDPLBA
 		MVI A, 0
 BIOS_WRITE_RET:
 		POP D
@@ -755,7 +739,44 @@ CALC_SECTOR_SHIFT_LOOP:
         MOV D, A  
         DCR B   ; Decrement counter
         JNZ CALC_SECTOR_SHIFT_LOOP  ; Repeat until done		
-		RET		
+		RET
+        
+CALC_CFLBA_FROM_PART_ADR:
+        LHLD DISK_TRACK        
+        LDA PARTADDR
+        MOV B, A
+        LDA PARTADDR+1
+        MOV C, A
+        LDA PARTADDR+2
+        MOV D, A
+        LDA PARTADDR+3
+        MOV E, A
+        ; ADD lower 16 bits (HL + BC)
+        MOV   A, L
+        ADD   B            ; A = L + B
+        MOV   B, A         ; Store result in C
+        MOV   A, H
+        ADC   C            ; A = H + C + Carry
+        MOV   C, A         ; Store result in B
+        ; ADD upper 16 bits (DE + Carry)
+        MOV   A, D
+        MVI   D, 00H
+        ADC   D             ; D = D + Carry
+        MOV   D, A
+        MOV   A, E
+        MVI   E, 00H
+        ADC   E             ; E = E + Carry
+        MOV   E, A
+        ; Store the result back at LBA        
+        MOV A, B
+        STA CFLBA0
+        MOV A, C
+        STA CFLBA1
+        MOV A, D
+        STA CFLBA2
+        MOV A, E
+        STA CFLBA3
+        RET
 		
 	IF DEBUG > 0
 PRINT_DISK_DEBUG
