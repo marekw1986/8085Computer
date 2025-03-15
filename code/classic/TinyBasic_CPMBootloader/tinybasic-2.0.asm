@@ -2121,6 +2121,7 @@ VARBGN: DS   55                         ;VARIABLE @(0)
 BUFFER: DS   64                         ;INPUT BUFFER
 BUFEND: DS   1
 SYSTEM_VARIABLES:
+PARTADDR    DS   16                     ;PARTITION ADDR TABLE
 BLKDAT: DS   512                        ;BUFFER FOR SECTOR TRANSFER
 BLKENDL DS   0                          ;BUFFER ENDS
 CFVAL	DS	 1							;IS VALID CF DATA IN BUFFER
