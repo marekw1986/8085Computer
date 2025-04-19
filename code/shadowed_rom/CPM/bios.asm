@@ -52,6 +52,33 @@ BIOS_BOOT_PROC:
         NOP
         NOP
         
+        ;Initialize 8253
+		MVI  A, 30H                     ;TIMER0 - systick
+		OUT  CONTR_W_8253               ;Timer 0, write LSB then MSB, mode 0, binary 
+		MVI  A, 00H                     ;LSB, interrupt every 20ms
+		OUT  COUNT_REG_0_8253
+		MVI  A, 0A0H                    ;MSB, interrupt every 20ms (0xF0 for 30 ms)
+		OUT  COUNT_REG_0_8253	
+		MVI  A, 0B6H                    ;TIMER2 - baudrate generator for 8251
+		OUT CONTR_W_8253                ;Timer 2, write LSB then MSB, mode 3, binary
+		MVI  A, 0DH                     ;LSB
+		OUT  COUNT_REG_2_8253
+		MVI  A, 00H                     ;MSB
+		OUT  COUNT_REG_2_8253          
+        ;Initialize 8251
+        MVI  A, 00H
+        OUT  UART_8251_CTRL
+        MVI  A, 00H
+        OUT  UART_8251_CTRL
+        MVI  A, 00H
+        OUT  UART_8251_CTRL
+        MVI  A, 40H						;Initiate UART reset
+        OUT  UART_8251_CTRL
+        MVI	 A, 4EH						;Mode: 8 data, 1 stop, x16
+        OUT	 UART_8251_CTRL
+        MVI	 A, 37H
+        OUT	 UART_8251_CTRL
+        
         XRA A
         LXI H, 0000H
         LXI B, CCP
@@ -64,6 +91,13 @@ ZERO_LOOP:
         ORA C
         JNZ ZERO_LOOP
         CALL CFGETMBR
+        CPI 00H                     ; Check if MBR loaded properly
+        JZ LD_PART_TABLE
+        CALL IPUTS
+        DB 'MBR load err. Reset required.'
+        DB 00H
+        CALL ENDLESS_LOOP
+LD_PART_TABLE:
         CALL CFLDPARTADDR
 CFVAR_INIT:
 		MVI A, 00H
@@ -327,17 +361,14 @@ BIOS_SETTRK_PROC:
 		RET
 		  
 BIOS_SELDSK_PROC:
-		PUSH PSW
 		MOV A, C
         CPI 04H     ; Only four partitions supported
         JNC BIOS_SELDSK_PROC_WRNDSK
         STA DISK_DISK
 		LXI H, DISKA_DPH	
-		JMP BIOS_SELDSK_PROC_RET
+		RET
 BIOS_SELDSK_PROC_WRNDSK:
         LXI H, 0
-BIOS_SELDSK_PROC_RET
-		POP PSW
         RET
 		
 BIOS_SETSEC_PROC:
@@ -426,6 +457,8 @@ BIOS_READ_PROC:
 		PUSH B				; Now save remaining registers
 		PUSH D
         CALL CALC_CFLBA_FROM_PART_ADR
+        CPI 00H                            ; If 0 in A, no valid LBA calculated
+        JZ BIOS_READ_PROC_RET_ERR          ; In that case return and report error
 		CALL CFRSECT_WITH_CACHE
 	IF DEBUG > 0
         PUSH PSW
@@ -581,6 +614,8 @@ BIOS_WRITE_PERFORM:
 		CALL MEMCOPY
 		; Buffer is updated with new sector data. Perform write.
         CALL CALC_CFLBA_FROM_PART_ADR
+        CPI 00H         ; If A=0, no valid LBA calculated
+        JZ BIOS_WRITE_RET_ERR ; Return and report error
 		LXI D, BLKDAT
 		CALL CFWSECT
 		CPI 00H			; Check result
@@ -756,6 +791,11 @@ CALC_CFLBA_LOOP_START
         INX H
         INX H
         JMP CALC_CFLBA_LOOP_START
+; Check if partition address is != 0
+        MOV D, H
+        MOV E, L
+        CALL ISZERO32BIT
+        JZ CALC_CFLBA_RET_ERR
 CALC_CFLBA_LOOP_END:       
         MOV B, M
         INX H
@@ -790,6 +830,10 @@ CALC_CFLBA_LOOP_END:
         STA CFLBA2
         MOV A, E
         STA CFLBA3
+        MVI A, 01H
+        RET
+CALC_CFLBA_RET_ERR
+        MVI A, 00H
         RET
 		
 	IF DEBUG > 0
