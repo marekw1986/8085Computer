@@ -4,7 +4,7 @@ import re
 
 accepted_labels = {"STACK", "SYSTEM_VARIABLES", "CFLBA0", "CFLBA1", "CFLBA2", "CFLBA3", "BLKDAT"}
 
-with open('tinybasic-2.0.lst', 'r') as file:
+with open('bootloader.lst', 'r') as file:
     data = file.read()
     labels = data.partition('\x0c')[2]
     lines = labels.split("\n")
