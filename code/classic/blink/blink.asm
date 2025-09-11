@@ -35,7 +35,7 @@ INIT:
 		OUT CONTR_W_8253                ;Timer 2, write LSB then MSB, mode 3, binary
 		MVI  A, 13H                     ;LSB
 		OUT  COUNT_REG_2_8253
-		MVI  A, 00H                     ;MSB
+		XOR A                     ;MSB
 		OUT  COUNT_REG_2_8253          
         ;Initialize 8251
         MVI	 A, 4EH
@@ -135,7 +135,7 @@ RTC_ISR:
 		PUSH PSW						;Save condition bits and accumulator
         PUSH H
         PUSH D
-        MVI A, 00H                      ;Clear the RTC interrupt flag to change state of the line
+        XOR A                      ;Clear the RTC interrupt flag to change state of the line
         OUT RTC_CTRLD_REG
         LHLD RTCTICK                    ;Load RTCTICK variable to HL
         INX H                           ;Increment HL
