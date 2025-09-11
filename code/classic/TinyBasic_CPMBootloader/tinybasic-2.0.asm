@@ -1590,7 +1590,7 @@ INIT:   STA  OCSW
 		DB 'CF CARD: '
 		DB 00H
 		CALL CFINIT
-		CPI 00H								; Check if CF_WAIT during initialization timeouted
+		ORA A								; Check if CF_WAIT during initialization timeouted
 		JZ GET_CFINFO
 		CALL IPUTS
 		DB 'missing'
@@ -1659,15 +1659,15 @@ CHECK_PARTITION1_SIZE:
 		JNC PRINT_BOOT_OPTIONS		; It is bigger
 		INX D
 		LDAX D
-		CPI 00H
+		ORA A
 		JNZ PRINT_BOOT_OPTIONS
 		INX D
 		LDAX D
-		CPI 00H
+		ORA A
 		JNZ PRINT_BOOT_OPTIONS
 		INX D
 		LDAX D
-		CPI 00H
+		ORA A
 		JNZ PRINT_BOOT_OPTIONS
 		CALL IPUTS
 		DB 'ERROR: partition 1 < 16kB'
@@ -1700,7 +1700,7 @@ BOOT_MODE_INPUT:
 ;		POP D
 ;		POP B
 		CALL CHKIO
-		CPI  00H
+		ORA A
 		JZ BOOT_MODE_INPUT
         ANI  7FH  		; MASK BIT 7 OFF
         CPI 49			; Is it 1?
@@ -1712,7 +1712,7 @@ BOOT_MODE_INPUT:
 BOOT_CPM:
 		DI
         CALL LOAD_PARTITION1
-        CPI 00H
+        ORA A
         JZ JUMP_TO_CPM
         CALL IPUTS
         DB 'CP/M load error. Reset.'
