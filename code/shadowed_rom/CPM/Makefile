@@ -37,7 +37,7 @@ bdos.p bdos.lst: bdos.asm
 	asl -D origin=0e406h -o bdos.p -L -OLIST bdos.lst bdos.asm -cpu 8080
 	
 bios.p bios.lst: bios.asm
-	asl -o bios.p -L -OLIST bios.lst bios.asm -cpu 8080
+	asl -o bios.p -L -OLIST bios.lst bios.asm -cpu 8085undoc
 	
 cpm22.bin: ccp.p bdos.p bios.p
 	p2bin -l '$$00' ccp.p bdos.p bios.p cpm22.bin
